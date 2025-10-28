@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pause</title>
+    <link rel="icon" href="" type="image/x-icon">
+
+    <style>
+        /* --- Variáveis de Cor --- */
+        :root {
+            --primary-purple: #4B0082; /* Indigo */
+            --accent-green: #39FF14;   /* Verde fluorescente */
+            --background-dark: #141414;
+            --text-light: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --card-hover-scale: 1.05;
+        }
+
+        /* --- Reset Básico e Estilos Globais --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--background-dark); color: var(--text-light); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; overflow-x: hidden; }
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; display: block; }
+
+        /* --- Header --- */
+        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: rgba(20, 20, 20, 0.8); position: fixed; top: 0; left: 0; width: 100%; z-index: 100; transition: background-color 0.3s ease; }
+        .logo { font-size: 1.8em; font-weight: bold; color: var(--accent-green); text-transform: uppercase; }
+        .search-container input[type="text"] { padding: 8px 12px; border: 1px solid var(--primary-purple); background-color: rgba(0, 0, 0, 0.7); color: var(--text-light); border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.3s ease; }
+        .search-container input[type="text"]:focus { border-color: var(--accent-green); }
+        .search-container input[type="text"]::placeholder { color: var(--text-secondary); }
+
+        /* --- Hero Section --- */
+        #hero { position: relative; height: 70vh; width: 100%; overflow: hidden; margin-top: 60px; background-color: var(--primary-purple); }
+        .video-background { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; }
+        .video-background iframe, .video-background video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        #hero::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 20, 20, 0.1), rgba(20, 20, 20, 0.8) 90%); z-index: 2; }
+        .hero-content { position: relative; z-index: 3; padding: 50px; color: var(--text-light); bottom: 10%; left: 5%; } /* Estilos de exemplo */
+
+        /* --- Content Rows --- */
+        .content-row { padding: 20px 30px; margin-bottom: 20px; }
+        .content-row h2 { font-size: 1.4em; margin-bottom: 15px; color: var(--accent-green); }
+        .card-container { display: flex; overflow-x: auto; overflow-y: hidden; padding-bottom: 15px; gap: 15px; scrollbar-width: thin; scrollbar-color: var(--accent-green) var(--primary-purple); }
+        .card-container::-webkit-scrollbar { height: 8px; }
+        .card-container::-webkit-scrollbar-track { background: var(--primary-purple); border-radius: 4px; }
+        .card-container::-webkit-scrollbar-thumb { background-color: var(--accent-green); border-radius: 4px; }
+        .card { flex: 0 0 auto; width: 180px; aspect-ratio: 2 / 3; background-color: var(--primary-purple); border-radius: 4px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; position: relative; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        .card:hover { transform: scale(var(--card-hover-scale)); box-shadow: 0 10px 20px rgba(57, 255, 20, 0.3); z-index: 10; }
+
+        /* --- Footer --- */
+        .main-footer { text-align: center; padding: 20px; margin-top: 40px; font-size: 0.8em; color: var(--text-secondary); border-top: 1px solid var(--primary-purple); }
+
+        /* --- Responsividade --- */
+        @media (max-width: 768px) {
+            .main-header { padding: 10px 15px; }
+            .logo { font-size: 1.5em; }
+            .search-container input[type="text"] { width: 150px; padding: 6px 10px; }
+            #hero { height: 50vh; margin-top: 50px; }
+            .content-row { padding: 15px; }
+            .content-row h2 { font-size: 1.2em; }
+            .card { width: 140px; }
+            .card-container { gap: 10px; }
+        }
+        @media (max-width: 480px) {
+            .logo { font-size: 1.3em; }
+            .search-container input[type="text"] { width: 120px; }
+            #hero { height: 40vh; }
+            .card { width: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">Pause</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar títulos...">
+        </div>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="video-background">
+                <iframe
+                    src="https://www.youtube.com/embed/Efxfx4eFcm4?autoplay=1&mute=1&loop=1&playlist=Efxfx4eFcm4&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+                    frameborder="0"
+                    allow="autoplay; encrypted-media"
+                    allowfullscreen
+                    title="Background Video">
+                </iframe>
+
+                </div>
+            </section>
+
+        <section class="content-row">
+            <h2>Todos os filmes passam por edição de imagem e som, feitos no CapCut e, 
+                em alguns casos, no After Effects, o que gera custos de produção. 
+                Quem quiser assistir pode aproveitar por apenas R$1,99. É só clicar e curtir o filme!
+                Desde já, agradeço a todos os seguidores. Ah, e se quiserem, filmes têm muitos na 
+                internet… mas não com a minha qualidade! Fiquem à vontade para escolher, a internet é bem ampla.
+            </h2>
+            <h2>Em Alta</h2>
+            <div class="card-container">
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="A vida de chuck" target="_blank"><img src="chuck.jpg" alt="Capa Filme 1"></a>
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Comédia Romântica 2" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+2" alt="Capa Filme 2"></a>
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Documentário Natureza 3" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+3" alt="Capa Filme 3"></a>
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Ficção Científica 4" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+4" alt="Capa Filme 4"></a>
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Suspense Psicológico 5" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+5" alt="Capa Filme 5"></a>
+                <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Animação Aventura 6" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+6" alt="Capa Filme 6"></a>
+            </div>
+        </section>
+
+         <section class="content-row">
+            <h2>Séries</h2>
+            <div class="card-container">
+                 <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Série Drama 1" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+1" alt="Capa Série 1"></a>
+                 <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Série Comédia 2" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+2" alt="Capa Série 2"></a>
+                 <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="card" data-title="Série Mistério 3" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+3" alt="Capa Série 3"></a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Pause. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const movieCards = document.querySelectorAll('.card-container .card');
+
+            function filterMovies() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                movieCards.forEach(card => {
+                    const title = (card.getAttribute('data-title') || "").toLowerCase();
+                    if (title.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterMovies);
+            } else {
+                console.warn("Elemento 'searchInput' não encontrado.");
+            }
+
+            const header = document.querySelector('.main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.style.backgroundColor = 'rgba(20, 20, 20, 0.95)';
+                    } else {
+                        header.style.backgroundColor = 'rgba(20, 20, 20, 0.8)';
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
