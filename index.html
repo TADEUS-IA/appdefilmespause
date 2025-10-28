@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pause</title>
-    <link rel="icon" href="" type="image/x-icon">
+    <title>Pause - Seu Catálogo de Filmes</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon">
 
     <style>
-        /* --- Variáveis de Cor --- */
+        /* --- Variáveis Globais --- */
         :root {
             --primary-purple: #4B0082; /* Indigo */
             --accent-green: #39FF14;   /* Verde fluorescente */
@@ -15,59 +15,287 @@
             --text-light: #f0f0f0;
             --text-secondary: #a0a0a0;
             --card-hover-scale: 1.05;
+            --header-height: 60px; /* Altura do header para cálculo de margem */
+            --highlight-text-color: var(--accent-green); /* Cor padrão do texto de destaque - PODE SER ALTERADA AQUI */
         }
 
         /* --- Reset Básico e Estilos Globais --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--background-dark); color: var(--text-light); font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; overflow-x: hidden; }
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-light);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevenir scroll horizontal */
+        }
         a { color: inherit; text-decoration: none; }
         img { max-width: 100%; display: block; }
 
         /* --- Header --- */
-        .main-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: rgba(20, 20, 20, 0.8); position: fixed; top: 0; left: 0; width: 100%; z-index: 100; transition: background-color 0.3s ease; }
-        .logo { font-size: 1.8em; font-weight: bold; color: var(--accent-green); text-transform: uppercase; }
-        .search-container input[type="text"] { padding: 8px 12px; border: 1px solid var(--primary-purple); background-color: rgba(0, 0, 0, 0.7); color: var(--text-light); border-radius: 4px; font-size: 0.9em; outline: none; transition: border-color 0.3s ease; }
-        .search-container input[type="text"]:focus { border-color: var(--accent-green); }
-        .search-container input[type="text"]::placeholder { color: var(--text-secondary); }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background-color: rgba(20, 20, 20, 0.8);
+            position: fixed; /* Fixar no topo */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            z-index: 1000; /* Alto z-index para ficar sobre outros elementos */
+            transition: background-color 0.3s ease;
+        }
+        .main-header.scrolled { /* Estilo quando a página é rolada */
+             background-color: rgba(20, 20, 20, 0.95);
+        }
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--accent-green);
+            text-transform: uppercase;
+        }
+        .search-container input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid var(--primary-purple);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text-light);
+            border-radius: 4px;
+            font-size: 0.9em;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .search-container input[type="text"]:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
+        }
+        .search-container input[type="text"]::placeholder {
+            color: var(--text-secondary);
+        }
 
-        /* --- Hero Section --- */
-        #hero { position: relative; height: 70vh; width: 100%; overflow: hidden; margin-top: 60px; background-color: var(--primary-purple); }
-        .video-background { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; }
-        .video-background iframe, .video-background video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        #hero::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 20, 20, 0.1), rgba(20, 20, 20, 0.8) 90%); z-index: 2; }
-        .hero-content { position: relative; z-index: 3; padding: 50px; color: var(--text-light); bottom: 10%; left: 5%; } /* Estilos de exemplo */
+        /* --- Hero Section - Carrossel de Vídeos --- */
+        #hero {
+            position: relative;
+            height: 70vh; /* Altura da seção hero */
+            width: 100%;
+            overflow: hidden; /* Esconder partes do vídeo que excedem */
+            margin-top: var(--header-height); /* Espaço para o header fixo */
+            background-color: var(--primary-purple); /* Cor de fundo enquanto o vídeo carrega */
+        }
+        .video-carousel-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+         /* Container para o player do YouTube */
+        #youtube-player {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%; /* Inicialmente 100% */
+            transform: translate(-50%, -50%);
+             /* Ajustes para garantir que cubra a área - pode precisar ajustar com base nos vídeos */
+             min-width: 100%;
+             min-height: 100%;
+             width: auto;
+             height: auto;
+             /* aspect-ratio: 16 / 9; */ /* Removido temporariamente para teste, pode ser necessário ajustar no JS */
+        }
 
-        /* --- Content Rows --- */
-        .content-row { padding: 20px 30px; margin-bottom: 20px; }
-        .content-row h2 { font-size: 1.4em; margin-bottom: 15px; color: var(--accent-green); }
-        .card-container { display: flex; overflow-x: auto; overflow-y: hidden; padding-bottom: 15px; gap: 15px; scrollbar-width: thin; scrollbar-color: var(--accent-green) var(--primary-purple); }
+        /* Overlay gradiente sobre o vídeo */
+        #hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(20, 20, 20, 0.1), rgba(20, 20, 20, 0.8) 90%);
+            z-index: 2; /* Fica acima do vídeo, abaixo do conteúdo */
+            pointer-events: none; /* Permite interação com elementos abaixo, se houver */
+        }
+        /* Conteúdo sobre o Hero (se necessário, não usado no exemplo atual) */
+        .hero-content {
+            position: relative; /* Posição relativa ao #hero */
+            z-index: 3; /* Acima do overlay */
+            padding: 50px;
+            color: var(--text-light);
+            /* Exemplo: Alinhar conteúdo na parte inferior esquerda */
+            position: absolute;
+            bottom: 10%;
+            left: 5%;
+        }
+
+        /* --- Seção de Destaque --- */
+        .highlight-section {
+            padding: 30px 30px 10px; /* Mais padding superior */
+            margin-top: 20px;
+            text-align: center; /* Centralizar texto */
+            background-color: rgba(75, 0, 130, 0.2); /* Fundo sutil roxo */
+            border-bottom: 1px solid var(--primary-purple); /* Linha divisória */
+        }
+        .highlight-text {
+            color: var(--highlight-text-color); /* Usa a variável de cor */
+            font-size: 1.1em;
+            font-weight: 500;
+            max-width: 900px; /* Limita largura para melhor leitura */
+            margin: 0 auto; /* Centraliza o bloco de texto */
+            line-height: 1.7;
+        }
+        /* Estilo específico para o H2 dentro da seção de destaque, se necessário */
+         .highlight-section h2 {
+           color: #FF0000; /* Exemplo: Vermelho - Ajuste conforme necessário */
+           font-size: 1.2em; /* Tamanho um pouco maior */
+           margin-top: 15px; /* Espaço acima do H2 */
+           font-weight: bold;
+         }
+
+
+        /* --- Content Rows (Fileiras de Cards) --- */
+        .content-row {
+            padding: 20px 30px;
+            margin-bottom: 20px;
+        }
+        .content-row h2 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: var(--accent-green);
+        }
+        .card-container {
+            display: flex; /* Alinha os cards horizontalmente */
+            overflow-x: auto; /* Permite scroll horizontal */
+            overflow-y: hidden; /* Esconde scroll vertical */
+            padding-bottom: 15px; /* Espaço para a barra de scroll */
+            gap: 15px; /* Espaçamento entre os cards */
+            /* Estilização customizada da barra de scroll (Webkit e Firefox) */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-green) var(--primary-purple);
+        }
         .card-container::-webkit-scrollbar { height: 8px; }
         .card-container::-webkit-scrollbar-track { background: var(--primary-purple); border-radius: 4px; }
         .card-container::-webkit-scrollbar-thumb { background-color: var(--accent-green); border-radius: 4px; }
-        .card { flex: 0 0 auto; width: 180px; aspect-ratio: 2 / 3; background-color: var(--primary-purple); border-radius: 4px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; position: relative; }
-        .card img { width: 100%; height: 100%; object-fit: cover; }
-        .card:hover { transform: scale(var(--card-hover-scale)); box-shadow: 0 10px 20px rgba(57, 255, 20, 0.3); z-index: 10; }
+
+        .card {
+            flex: 0 0 auto; /* Não estica, não encolhe, baseia-se no width */
+            width: 180px; /* Largura fixa do card */
+            aspect-ratio: 2 / 3; /* Proporção padrão de poster */
+            background-color: var(--primary-purple); /* Cor de fundo caso a imagem não carregue */
+            border-radius: 4px;
+            overflow: hidden; /* Garante que a imagem não ultrapasse o card */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative; /* Necessário para z-index no hover */
+        }
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cobre todo o espaço do card sem distorcer */
+            display: block; /* Remove espaço extra abaixo da imagem */
+        }
+        .card:hover {
+            transform: scale(var(--card-hover-scale)); /* Efeito de zoom no hover */
+            box-shadow: 0 10px 20px rgba(57, 255, 20, 0.3); /* Sombra verde */
+            z-index: 10; /* Traz o card para frente no hover */
+        }
+
+        /* --- Modal de Resultado da Busca --- */
+        #search-result-modal {
+            display: none; /* Escondido por padrão */
+            position: fixed; /* Fixo na tela */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); /* Fundo escuro semi-transparente */
+            z-index: 2000; /* Acima de todo o resto */
+            justify-content: center; /* Centraliza horizontalmente */
+            align-items: center; /* Centraliza verticalmente */
+            padding: 20px;
+        }
+        #search-result-modal.show-modal {
+            display: flex; /* Mostra o modal usando flex para centralizar */
+        }
+        .modal-content {
+            position: relative;
+            max-width: 300px; /* Largura máxima da imagem no modal */
+            max-height: 80vh; /* Altura máxima */
+            animation: fadeInScale 0.3s ease-out; /* Animação de entrada */
+        }
+        #modal-movie-image {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain; /* Garante que a imagem caiba sem cortar */
+            border-radius: 5px;
+            box-shadow: 0 5px 25px rgba(57, 255, 20, 0.4);
+        }
+        #modal-close-btn {
+            position: absolute;
+            top: -35px; /* Posição acima da imagem */
+            right: -15px;
+            background-color: var(--accent-green);
+            color: var(--background-dark);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            line-height: 30px; /* Centraliza o 'X' */
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #modal-close-btn:hover {
+            background-color: #fff;
+        }
+
+        /* Animação para o Modal */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
 
         /* --- Footer --- */
-        .main-footer { text-align: center; padding: 20px; margin-top: 40px; font-size: 0.8em; color: var(--text-secondary); border-top: 1px solid var(--primary-purple); }
+        .main-footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--primary-purple);
+        }
 
         /* --- Responsividade --- */
-        @media (max-width: 768px) {
-            .main-header { padding: 10px 15px; }
+        @media (max-width: 1024px) { /* Tablets e menores */
+            .card { width: 160px; }
+            .modal-content { max-width: 250px; }
+        }
+
+        @media (max-width: 768px) { /* Tablets em modo retrato e celulares grandes */
+            .main-header { padding: 10px 15px; height: auto; /* Ajuste para header flexível */}
             .logo { font-size: 1.5em; }
-            .search-container input[type="text"] { width: 150px; padding: 6px 10px; }
-            #hero { height: 50vh; margin-top: 50px; }
+            .search-container input[type="text"] { width: 150px; padding: 6px 10px; font-size: 0.85em; }
+            #hero { height: 55vh; margin-top: 50px; } /* Reduz a margem do topo se o header for menor */
+            .highlight-section { padding: 20px 15px 10px; }
+            .highlight-text { font-size: 1em; }
+             .highlight-section h2 { font-size: 1.1em; }
             .content-row { padding: 15px; }
             .content-row h2 { font-size: 1.2em; }
             .card { width: 140px; }
             .card-container { gap: 10px; }
+            .modal-content { max-width: 200px; }
+             #modal-close-btn { top: -30px; right: -10px; width: 25px; height: 25px; font-size: 1em; line-height: 25px;}
         }
-        @media (max-width: 480px) {
-            .logo { font-size: 1.3em; }
-            .search-container input[type="text"] { width: 120px; }
-            #hero { height: 40vh; }
-            .card { width: 110px; }
+
+        @media (max-width: 480px) { /* Celulares */
+             .main-header { flex-direction: column; height: auto; padding-bottom: 10px; }
+             .logo { font-size: 1.6em; margin-bottom: 8px; }
+            .search-container { width: 90%; text-align: center; }
+            .search-container input[type="text"] { width: 100%; max-width: 250px; }
+            #hero { height: 45vh; margin-top: 95px; } /* Ajuste maior devido ao header maior em coluna */
+            .highlight-text { font-size: 0.95em; }
+             .highlight-section h2 { font-size: 1em; }
+            .card { width: 120px; }
+            .modal-content { max-width: 180px; }
         }
+
     </style>
 </head>
 <body>
@@ -81,86 +309,331 @@
 
     <main>
         <section id="hero">
-            <div class="video-background">
-                <iframe
-                    src="https://www.youtube.com/embed/Efxfx4eFcm4?autoplay=1&mute=1&loop=1&playlist=Efxfx4eFcm4&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
-                    frameborder="0"
-                    allow="autoplay; encrypted-media"
-                    allowfullscreen
-                    title="Background Video">
-                </iframe>
+            <div class="video-carousel-container">
+                <div id="youtube-player"></div> </div>
+           </section>
 
-                </div>
-            </section>
+        <section class="highlight-section">
+            <p class="highlight-text">
+                Todos os filmes passam por edição de imagem e som, feitos no CapCut e,
+                em alguns casos, no After Effects, o que gera custos de produção.
+                Quem quiser assistir pode aproveitar por apenas R$1,99. É só clicar e curtir o filme!
+                Desde já, agradeço a todos os seguidores. Ah, e se quiserem, filmes têm muitos na
+                internet… mas não com a minha qualidade! Fiquem à vontade para escolher, a internet é bem ampla.
+                <h2>Por conta de algumas pessoas que me xingaram e me falaram um monte de coisas os filmes NÃO SERÁ MAIS GRÁTIS!</h2>
+            </p>
+        </section>
 
         <section class="content-row">
-            <h2>Todos os filmes passam por edição de imagem e som, feitos no CapCut e, 
-                em alguns casos, no After Effects, o que gera custos de produção. 
-                Quem quiser assistir pode aproveitar por apenas R$1,99. É só clicar e curtir o filme!
-                Desde já, agradeço a todos os seguidores. Ah, e se quiserem, filmes têm muitos na 
-                internet… mas não com a minha qualidade! Fiquem à vontade para escolher, a internet é bem ampla.
-            </h2>
             <h2>Em Alta</h2>
-            <div class="card-container">
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="A vida de chuck" target="_blank"><img src="chuck.jpg" alt="Capa Filme 1"></a>
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Comédia Romântica 2" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+2" alt="Capa Filme 2"></a>
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Documentário Natureza 3" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+3" alt="Capa Filme 3"></a>
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Ficção Científica 4" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+4" alt="Capa Filme 4"></a>
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Suspense Psicológico 5" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+5" alt="Capa Filme 5"></a>
-                <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Animação Aventura 6" target="_blank"><img src="https://via.placeholder.com/200x300/4B0082/39FF14?text=Pause+Filme+6" alt="Capa Filme 6"></a>
+            <div class="card-container" id="em-alta-container">
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="A vida de chuck" target="_blank"><img src="chuck.jpg" alt="A vida de chuck"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Comédia Romântica 2" target="_blank"><img src="indisponivel.jpg" alt="Comédia Romântica 2"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Documentário Natureza 3" target="_blank"><img src="indisponivel.jpg" alt="Documentário Natureza 3"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Ficção Científica 4" target="_blank"><img src="indisponivel.jpg" alt="Ficção Científica 4"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Suspense Psicológico 5" target="_blank"><img src="indisponivel.jpg" alt="Suspense Psicológico 5"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Animação Aventura 6" target="_blank"><img src="indisponivel.jpg" alt="Animação Aventura 6"></a>
             </div>
         </section>
 
-         <section class="content-row">
+        <section class="content-row">
             <h2>Séries</h2>
-            <div class="card-container">
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Drama 1" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+1" alt="Capa Série 1"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Comédia 2" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+2" alt="Capa Série 2"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Mistério 3" target="_blank"><img src="https://via.placeholder.com/200x300/330066/98FB98?text=Pause+Serie+3" alt="Capa Série 3"></a>
+            <div class="card-container" id="series-container">
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Drama 1" target="_blank"><img src="indisponivel.jpg" alt="Série Drama 1"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Comédia 2" target="_blank"><img src="indisponivel.jpg" alt="Série Comédia 2"></a>
+                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Mistério 3" target="_blank"><img src="indisponivel.jpg" alt="Série Mistério 3"></a>
             </div>
         </section>
     </main>
+
+    <div id="search-result-modal">
+        <div class="modal-content">
+            <button id="modal-close-btn">&times;</button>
+            <img id="modal-movie-image" src="" alt="Capa do Filme Selecionado">
+        </div>
+    </div>
 
     <footer class="main-footer">
         <p>&copy; 2025 Pause. Todos os direitos reservados.</p>
     </footer>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('searchInput');
-            const movieCards = document.querySelectorAll('.card-container .card');
 
-            function filterMovies() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                movieCards.forEach(card => {
-                    const title = (card.getAttribute('data-title') || "").toLowerCase();
-                    if (title.includes(searchTerm)) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
-
-            if (searchInput) {
-                searchInput.addEventListener('input', filterMovies);
-            } else {
-                console.warn("Elemento 'searchInput' não encontrado.");
-            }
-
+            // --- Lógica do Header com Scroll ---
             const header = document.querySelector('.main-header');
             if(header) {
                 window.addEventListener('scroll', () => {
                     if (window.scrollY > 50) {
-                        header.style.backgroundColor = 'rgba(20, 20, 20, 0.95)';
+                        header.classList.add('scrolled');
                     } else {
-                        header.style.backgroundColor = 'rgba(20, 20, 20, 0.8)';
+                        header.classList.remove('scrolled');
                     }
                 });
             }
+
+            // --- Lógica do Carrossel de Vídeos ---
+            let player;
+            const videoUrls = [
+                 'https://www.youtube.com/watch?v=CTIALKjOWhk',
+                 'https://www.youtube.com/watch?v=QdBZY2fkU-0', // Exemplo de outro vídeo
+                 'https://www.youtube.com/watch?v=StnauHmX6_I'
+            ];
+            let currentVideoIndex = 0;
+            let isTransitioning = false; // Flag para controle de transição
+
+            function extractVideoID(url) {
+                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                 const match = url.match(regExp);
+                 if (match && match[2].length === 11) {
+                     return match[2];
+                 } else {
+                     console.error("ID do vídeo inválido ou não extraído da URL:", url);
+                     return null;
+                 }
+            }
+
+            // Esta função é chamada automaticamente pela API do YouTube quando ela está pronta
+            window.onYouTubeIframeAPIReady = function() {
+                console.log("YouTube API Ready");
+                const firstVideoId = extractVideoID(videoUrls[currentVideoIndex]);
+                if (!firstVideoId) {
+                    console.error("O primeiro URL da lista é inválido:", videoUrls[currentVideoIndex]);
+                    return;
+                }
+                console.log("Initializing player with video ID:", firstVideoId);
+
+                player = new YT.Player('youtube-player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: firstVideoId,
+                    playerVars: {
+                        'autoplay': 1,       // Autoplay
+                        'controls': 0,       // Sem controles
+                        'showinfo': 0,       // Sem título
+                        'rel': 0,            // Sem vídeos relacionados no final
+                        'iv_load_policy': 3, // Sem anotações
+                        'modestbranding': 1, // Logo YouTube menor
+                        'loop': 0,           // Loop manual via API, não automático
+                        'mute': 1            // Mudo (necessário para autoplay em muitos browsers)
+                       // 'playlist' removido para garantir que onStateChange (ENDED) funcione
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+
+            function onPlayerReady(event) {
+                console.log("Player Ready, playing video:", videoUrls[currentVideoIndex]);
+                event.target.playVideo(); // Inicia o vídeo
+                adjustPlayerSize();       // Ajusta o tamanho inicial
+            }
+
+            function onPlayerStateChange(event) {
+                console.log("Player State Change:", event.data, "Current Index:", currentVideoIndex, "Transitioning:", isTransitioning);
+                // YT.PlayerState.ENDED = 0
+                if (event.data == YT.PlayerState.ENDED && !isTransitioning) {
+                    isTransitioning = true; // Marca que a transição começou
+                    console.log("Video Ended. Playing next video...");
+                    playNextVideo();
+                } else if (event.data == YT.PlayerState.PLAYING) {
+                     // Resetar a flag quando um vídeo começa a tocar garante que o próximo ENDED funcione
+                    if (isTransitioning) {
+                       console.log("Resetting transition flag because video started playing.");
+                       isTransitioning = false;
+                    }
+                    console.log("Video is playing:", videoUrls[currentVideoIndex]);
+                } else if (event.data == YT.PlayerState.PAUSED && isTransitioning) {
+                     // Caso raro: se pausar durante a transição, resetar a flag
+                     console.log("Resetting transition flag because video paused during transition attempt.");
+                     isTransitioning = false;
+                }
+            }
+
+            function playNextVideo() {
+                 console.log("playNextVideo called. Current index before increment:", currentVideoIndex);
+                currentVideoIndex++;
+                if (currentVideoIndex >= videoUrls.length) {
+                    currentVideoIndex = 0; // Volta para o primeiro vídeo
+                    console.log("Looping back to index 0.");
+                }
+                 console.log("New index:", currentVideoIndex);
+
+                const nextVideoUrl = videoUrls[currentVideoIndex];
+                const nextVideoId = extractVideoID(nextVideoUrl);
+
+                if (nextVideoId) {
+                    console.log("Loading next video ID:", nextVideoId, "from URL:", nextVideoUrl);
+                    if(player && typeof player.loadVideoById === 'function') {
+                        player.loadVideoById(nextVideoId); // Carrega o próximo vídeo
+                        // CORREÇÃO: Adicionar playVideo() após loadVideoById para iniciar a reprodução
+                        player.playVideo();
+                        adjustPlayerSize(); // Reajusta o tamanho se necessário
+                        // A flag isTransitioning será resetada no evento PLAYING
+                    } else {
+                        console.error("Player object not ready or loadVideoById not available.");
+                         isTransitioning = false; // Resetar se o player não estiver pronto
+                    }
+                } else {
+                    console.error("Invalid URL at index", currentVideoIndex, ":", nextVideoUrl);
+                    isTransitioning = false; // Resetar se a URL for inválida
+                    // Tenta pular para o próximo vídeo válido se houver mais de um
+                    if (videoUrls.length > 1) {
+                         console.log("Attempting to skip invalid URL and play next.");
+                        // Chama recursivamente com cuidado para evitar loop infinito se todas forem inválidas
+                        // Uma alternativa seria ter um contador de tentativas ou apenas avançar o índice
+                        // Vamos apenas avançar o índice e tentar carregar o próximo na próxima chamada
+                         // playNextVideo(); // Evitar recursão aqui, deixar o próximo evento ENDED (se ocorrer) ou um timer tratar
+                    }
+                }
+            }
+
+
+            function adjustPlayerSize() {
+                const heroSection = document.getElementById('hero');
+                const playerElement = document.getElementById('youtube-player');
+                if (!heroSection || !playerElement || !player || typeof player.getIframe !== 'function') return;
+
+                const playerIframe = player.getIframe();
+                if(!playerIframe) return;
+
+                const heroRatio = heroSection.offsetWidth / heroSection.offsetHeight;
+                const videoRatio = 16 / 9; // Proporção padrão de vídeo
+
+                if (heroRatio > videoRatio) {
+                    // Seção mais larga que o vídeo: ajustar largura para 100%, calcular altura
+                    playerIframe.style.width = heroSection.offsetWidth + 'px';
+                    playerIframe.style.height = (heroSection.offsetWidth / videoRatio) + 'px';
+                } else {
+                    // Seção mais alta que o vídeo: ajustar altura para 100%, calcular largura
+                    playerIframe.style.height = heroSection.offsetHeight + 'px';
+                    playerIframe.style.width = (heroSection.offsetHeight * videoRatio) + 'px';
+                }
+                 // Re-centralizar após redimensionar (já está com translate(-50%, -50%))
+                 playerIframe.style.top = '50%';
+                 playerIframe.style.left = '50%';
+                 playerIframe.style.transform = 'translate(-50%, -50%)';
+            }
+            window.addEventListener('resize', adjustPlayerSize);
+
+            // --- Lógica da Busca e do Modal ---
+            const searchInput = document.getElementById('searchInput');
+            const allCards = document.querySelectorAll('.card-container .card'); // Seleciona todos os cards de todos os containers
+            const searchResultModal = document.getElementById('search-result-modal');
+            const modalMovieImage = document.getElementById('modal-movie-image');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            function filterAndPotentiallyShowResult() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let exactMatchCard = null;
+                let foundVisibleCard = false; // Para verificar se algum card está visível após filtrar
+
+                // Esconde todas as fileiras inicialmente se houver termo de busca
+                const allRows = document.querySelectorAll('.content-row');
+                 if(searchTerm) {
+                     allRows.forEach(row => row.style.display = 'none');
+                 } else {
+                     allRows.forEach(row => row.style.display = 'block'); // Mostra todas se busca vazia
+                 }
+
+
+                allCards.forEach(card => {
+                    const title = (card.getAttribute('data-title') || "").toLowerCase();
+                    const parentRow = card.closest('.content-row'); // Encontra a fileira pai
+
+                    if (!searchTerm) { // Se a busca está vazia, mostra todos os cards
+                        card.style.display = 'block';
+                        foundVisibleCard = true; // Marca que há cards visíveis
+                    } else if (title.includes(searchTerm)) {
+                         card.style.display = 'block'; // Mostra o card
+                         if(parentRow) parentRow.style.display = 'block'; // Mostra a fileira pai
+                        foundVisibleCard = true; // Marca que há cards visíveis
+                        if (title === searchTerm && !exactMatchCard) { // Verifica correspondência exata
+                            exactMatchCard = card;
+                        }
+                    } else {
+                         card.style.display = 'none'; // Esconde o card
+                    }
+                });
+
+                 // Se houver uma correspondência exata, mostra o modal
+                if (exactMatchCard) {
+                    const imgSrc = exactMatchCard.querySelector('img')?.src;
+                    if (imgSrc) {
+                        modalMovieImage.src = imgSrc;
+                        modalMovieImage.alt = exactMatchCard.getAttribute('data-title');
+                        searchResultModal.classList.add('show-modal');
+                    }
+                } else if (searchTerm && !foundVisibleCard) {
+                    // Opcional: Mostrar mensagem de "Nenhum resultado encontrado"
+                    console.log("Nenhum resultado encontrado para:", searchTerm);
+                     // Poderia adicionar um elemento no HTML para exibir essa mensagem
+                }
+            }
+
+            function closeModal() {
+                searchResultModal.classList.remove('show-modal');
+                modalMovieImage.src = ""; // Limpa a imagem para evitar piscar na próxima abertura
+                modalMovieImage.alt = "";
+            }
+
+            if (searchInput) {
+                 searchInput.addEventListener('input', filterAndPotentiallyShowResult);
+            } else {
+                console.warn("Elemento 'searchInput' não encontrado.");
+            }
+
+            if (modalCloseBtn) {
+                 modalCloseBtn.addEventListener('click', closeModal);
+            } else {
+                 console.warn("Elemento 'modalCloseBtn' não encontrado.");
+            }
+
+
+            if (searchResultModal) {
+                 // Fechar modal clicando fora da imagem
+                 searchResultModal.addEventListener('click', (event) => {
+                     // Verifica se o clique foi no fundo do modal (fora do modal-content)
+                     if (event.target === searchResultModal) {
+                        closeModal();
+                     }
+                 });
+            } else {
+                console.warn("Elemento 'searchResultModal' não encontrado.");
+            }
+
+
+            // CORREÇÃO: Remover o listener de clique que abre o modal em TODOS os cards.
+            // Isso conflitava com o link do WhatsApp e causava o bug do hover persistente.
+            // O modal agora só abre com a busca por correspondência exata.
+            /*
+             allCards.forEach(card => {
+                 card.addEventListener('click', (event) => {
+                     // Previne o comportamento padrão do link A SE NECESSÁRIO
+                     // event.preventDefault(); // Descomente se não quiser ir para o WhatsApp
+
+                     const targetCard = event.target.closest('.card');
+                     if (targetCard) {
+                         const imgSrc = targetCard.querySelector('img')?.src;
+                         const title = targetCard.getAttribute('data-title');
+                         if (imgSrc && modalMovieImage && searchResultModal) {
+                             modalMovieImage.src = imgSrc;
+                             modalMovieImage.alt = title || "Capa do Filme";
+                             searchResultModal.classList.add('show-modal');
+                         } else {
+                              console.error("Não foi possível encontrar img, modalMovieImage ou searchResultModal");
+                         }
+                     }
+                 });
+             });
+             */
+
         });
     </script>
 
 </body>
-
 </html>
