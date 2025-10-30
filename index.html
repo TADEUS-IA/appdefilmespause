@@ -1,640 +1,1106 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pause - Seu Catálogo de Filmes</title>
-    <link rel="icon" href="favicon.png" type="image/x-icon">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Pause — Catálogo de Filmes Profissional v4 (Social)</title>
+<link rel="icon" href="favicon.png" />
+<style>
+/* ============================================================
+    DESIGN TOKENS E VARIÁVEIS GLOBAIS
+============================================================ */
+:root {
+  /* Cores */
+  --bg-0: #0c0c0c;
+  --bg-1: #121212;
+  --ink: #e0e0e0;
+  --ink-2: #a0a0a0;
+  --roxo: #6a0dad;
+  --roxo-2: #4a007a;
+  --verde: #00ff7f;
+  --verde-2: #32cd32;
+  --accent-glow: rgba(0, 255, 127, 0.2);
+  --roxo-glow: rgba(106, 13, 173, 0.2);
+  --verde-fluorescente: #39FF14; /* Cor para o rodapé */
 
-    <style>
-        /* --- Variáveis Globais --- */
-        :root {
-            --primary-purple: #4B0082; /* Indigo */
-            --accent-green: #39FF14;   /* Verde fluorescente */
-            --background-dark: #141414;
-            --text-light: #f0f0f0;
-            --text-secondary: #a0a0a0;
-            --card-hover-scale: 1.05;
-            --header-height: 60px; /* Altura do header para cálculo de margem */
-            --highlight-text-color: var(--accent-green); /* Cor padrão do texto de destaque - PODE SER ALTERADA AQUI */
-        }
+  /* Dimensões e Espaçamentos (baseados em REM) */
+  --base-font-size: 16px;
+  --header-h: 4.5rem; /* 72px */
+  --r-tiny: 0.25rem; /* 4px */
+  --r-small: 0.375rem; /* 6px */
+  --r-medium: 0.5rem; /* 8px */
+  --r-large: 0.75rem; /* 12px */
+  --sp-xs: 0.5rem; /* 8px */
+  --sp-s: 0.75rem; /* 12px */
+  --sp-m: 1rem; /* 16px */
+  --sp-l: 1.25rem; /* 20px */
+  --sp-xl: 1.5rem; /* 24px */
+  --sp-xxl: 2rem; /* 32px */
 
-        /* --- Reset Básico e Estilos Globais --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--background-dark);
-            color: var(--text-light);
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden; /* Prevenir scroll horizontal */
-        }
-        a { color: inherit; text-decoration: none; }
-        img { max-width: 100%; display: block; }
+  /* Sombras */
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.7);
 
-        /* --- Header --- */
-        .main-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            background-color: rgba(20, 20, 20, 0.8);
-            position: fixed; /* Fixar no topo */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: var(--header-height);
-            z-index: 1000; /* Alto z-index para ficar sobre outros elementos */
-            transition: background-color 0.3s ease;
-        }
-        .main-header.scrolled { /* Estilo quando a página é rolada */
-             background-color: rgba(20, 20, 20, 0.95);
-        }
-        .logo {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: var(--accent-green);
-            text-transform: uppercase;
-        }
-        .search-container input[type="text"] {
-            padding: 8px 12px;
-            border: 1px solid var(--primary-purple);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: var(--text-light);
-            border-radius: 4px;
-            font-size: 0.9em;
-            outline: none;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .search-container input[type="text"]:focus {
-            border-color: var(--accent-green);
-            box-shadow: 0 0 5px rgba(57, 255, 20, 0.5);
-        }
-        .search-container input[type="text"]::placeholder {
-            color: var(--text-secondary);
-        }
+  /* Transições */
+  --t-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-med: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --t-slow: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-        /* --- Hero Section - Carrossel de Vídeos --- */
-        #hero {
-            position: relative;
-            height: 70vh; /* Altura da seção hero */
-            width: 100%;
-            overflow: hidden; /* Esconder partes do vídeo que excedem */
-            margin-top: var(--header-height); /* Espaço para o header fixo */
-            background-color: var(--primary-purple); /* Cor de fundo enquanto o vídeo carrega */
-        }
-        .video-carousel-container {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-        }
-         /* Container para o player do YouTube */
-        #youtube-player {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100%; height: 100%; /* Inicialmente 100% */
-            transform: translate(-50%, -50%);
-             /* Ajustes para garantir que cubra a área - pode precisar ajustar com base nos vídeos */
-             min-width: 100%;
-             min-height: 100%;
-             width: auto;
-             height: auto;
-             /* aspect-ratio: 16 / 9; */ /* Removido temporariamente para teste, pode ser necessário ajustar no JS */
-        }
+  /* --- MUDANÇA: VARIÁVEIS PARA BOTÕES SOCIAIS AUMENTADAS --- */
+  --social-btn-size: 64px; /* Aumentado de 54px */
+  --social-icon-size: 32px; /* Aumentado de 28px */
+  --social-btn-size-mobile: 56px; /* Aumentado de 48px */
+  --social-icon-size-mobile: 28px; /* Aumentado de 24px */
+}
 
-        /* Overlay gradiente sobre o vídeo */
-        #hero::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(20, 20, 20, 0.1), rgba(20, 20, 20, 0.8) 90%);
-            z-index: 2; /* Fica acima do vídeo, abaixo do conteúdo */
-            pointer-events: none; /* Permite interação com elementos abaixo, se houver */
-        }
-        /* Conteúdo sobre o Hero (se necessário, não usado no exemplo atual) */
-        .hero-content {
-            position: relative; /* Posição relativa ao #hero */
-            z-index: 3; /* Acima do overlay */
-            padding: 50px;
-            color: var(--text-light);
-            /* Exemplo: Alinhar conteúdo na parte inferior esquerda */
-            position: absolute;
-            bottom: 10%;
-            left: 5%;
-        }
+/* ============================================================
+    RESET CSS E ESTILOS BASE
+============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
 
-        /* --- Seção de Destaque --- */
-        .highlight-section {
-            padding: 30px 30px 10px; /* Mais padding superior */
-            margin-top: 20px;
-            text-align: center; /* Centralizar texto */
-            background-color: rgba(75, 0, 130, 0.2); /* Fundo sutil roxo */
-            border-bottom: 1px solid var(--primary-purple); /* Linha divisória */
-        }
-        .highlight-text {
-            color: var(--highlight-text-color); /* Usa a variável de cor */
-            font-size: 1.1em;
-            font-weight: 500;
-            max-width: 900px; /* Limita largura para melhor leitura */
-            margin: 0 auto; /* Centraliza o bloco de texto */
-            line-height: 1.7;
-        }
-        /* Estilo específico para o H2 dentro da seção de destaque, se necessário */
-         .highlight-section h2 {
-           color: #FF0000; /* Exemplo: Vermelho - Ajuste conforme necessário */
-           font-size: 1.2em; /* Tamanho um pouco maior */
-           margin-top: 15px; /* Espaço acima do H2 */
-           font-weight: bold;
-         }
+html {
+  font-size: var(--base-font-size);
+  height: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  min-height: 100%;
+  background-color: var(--bg-0);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  vertical-align: middle;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+/* MUDANÇA: Exclui .social-btn e .footer-link do hover padrão */
+a:not(.btn):not(.social-btn):not(.brand):not(.footer-link):hover,
+a:not(.btn):not(.social-btn):not(.brand):not(.footer-link):focus-visible {
+  color: var(--verde);
+  text-decoration: underline;
+}
 
 
-        /* --- Content Rows (Fileiras de Cards) --- */
-        .content-row {
-            padding: 20px 30px;
-            margin-bottom: 20px;
-        }
-        .content-row h2 {
-            font-size: 1.4em;
-            margin-bottom: 15px;
-            color: var(--accent-green);
-        }
-        .card-container {
-            display: flex; /* Alinha os cards horizontalmente */
-            overflow-x: auto; /* Permite scroll horizontal */
-            overflow-y: hidden; /* Esconde scroll vertical */
-            padding-bottom: 15px; /* Espaço para a barra de scroll */
-            gap: 15px; /* Espaçamento entre os cards */
-            /* Estilização customizada da barra de scroll (Webkit e Firefox) */
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-green) var(--primary-purple);
-        }
-        .card-container::-webkit-scrollbar { height: 8px; }
-        .card-container::-webkit-scrollbar-track { background: var(--primary-purple); border-radius: 4px; }
-        .card-container::-webkit-scrollbar-thumb { background-color: var(--accent-green); border-radius: 4px; }
+button {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  appearance: none;
+}
 
-        .card {
-            flex: 0 0 auto; /* Não estica, não encolhe, baseia-se no width */
-            width: 180px; /* Largura fixa do card */
-            aspect-ratio: 2 / 3; /* Proporção padrão de poster */
-            background-color: var(--primary-purple); /* Cor de fundo caso a imagem não carregue */
-            border-radius: 4px;
-            overflow: hidden; /* Garante que a imagem não ultrapasse o card */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            position: relative; /* Necessário para z-index no hover */
-        }
-        .card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Cobre todo o espaço do card sem distorcer */
-            display: block; /* Remove espaço extra abaixo da imagem */
-        }
-        .card:hover {
-            transform: scale(var(--card-hover-scale)); /* Efeito de zoom no hover */
-            box-shadow: 0 10px 20px rgba(57, 255, 20, 0.3); /* Sombra verde */
-            z-index: 10; /* Traz o card para frente no hover */
-        }
+/* Melhoria de Acessibilidade: Foco Visível */
+*:focus-visible {
+  outline: 3px solid var(--verde);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--accent-glow);
+  border-radius: var(--r-tiny);
+}
 
-        /* --- Modal de Resultado da Busca --- */
-        #search-result-modal {
-            display: none; /* Escondido por padrão */
-            position: fixed; /* Fixo na tela */
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.85); /* Fundo escuro semi-transparente */
-            z-index: 2000; /* Acima de todo o resto */
-            justify-content: center; /* Centraliza horizontalmente */
-            align-items: center; /* Centraliza verticalmente */
-            padding: 20px;
-        }
-        #search-result-modal.show-modal {
-            display: flex; /* Mostra o modal usando flex para centralizar */
-        }
-        .modal-content {
-            position: relative;
-            max-width: 300px; /* Largura máxima da imagem no modal */
-            max-height: 80vh; /* Altura máxima */
-            animation: fadeInScale 0.3s ease-out; /* Animação de entrada */
-        }
-        #modal-movie-image {
-            width: 100%;
-            height: auto;
-            max-height: 80vh;
-            object-fit: contain; /* Garante que a imagem caiba sem cortar */
-            border-radius: 5px;
-            box-shadow: 0 5px 25px rgba(57, 255, 20, 0.4);
-        }
-        #modal-close-btn {
-            position: absolute;
-            top: -35px; /* Posição acima da imagem */
-            right: -15px;
-            background-color: var(--accent-green);
-            color: var(--background-dark);
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            line-height: 30px; /* Centraliza o 'X' */
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        #modal-close-btn:hover {
-            background-color: #fff;
-        }
+/* Estilo de scrollbar */
+body::-webkit-scrollbar { width: 10px; }
+body::-webkit-scrollbar-track { background: var(--bg-1); }
+body::-webkit-scrollbar-thumb { background: linear-gradient(var(--roxo-2), var(--roxo)); border-radius: 5px; border: 2px solid var(--bg-1); }
+body { scrollbar-width: thin; scrollbar-color: var(--roxo) var(--bg-1); }
 
-        /* Animação para o Modal */
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
+/* ============================================================
+    HEADER - Barra Superior Fixa e Responsiva
+============================================================ */
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-xl);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+  z-index: 1000;
+  transition: background-color var(--t-med);
+}
 
-        /* --- Footer --- */
-        .main-footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
-            font-size: 0.8em;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--primary-purple);
-        }
+.header__inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-m);
+}
 
-        /* --- Responsividade --- */
-        @media (max-width: 1024px) { /* Tablets e menores */
-            .card { width: 160px; }
-            .modal-content { max-width: 250px; }
-        }
+.brand {
+  color: var(--verde);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: clamp(1.3rem, 1rem + 1.2vw, 1.8rem);
+  text-shadow: 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+  transition: transform var(--t-fast);
+  text-decoration: none;
+}
+.brand:hover {
+    transform: scale(1.05);
+    text-decoration: none; /* Garante que não sublinhe no hover */
+}
 
-        @media (max-width: 768px) { /* Tablets em modo retrato e celulares grandes */
-            .main-header { padding: 10px 15px; height: auto; /* Ajuste para header flexível */}
-            .logo { font-size: 1.5em; }
-            .search-container input[type="text"] { width: 150px; padding: 6px 10px; font-size: 0.85em; }
-            #hero { height: 55vh; margin-top: 50px; } /* Reduz a margem do topo se o header for menor */
-            .highlight-section { padding: 20px 15px 10px; }
-            .highlight-text { font-size: 1em; }
-             .highlight-section h2 { font-size: 1.1em; }
-            .content-row { padding: 15px; }
-            .content-row h2 { font-size: 1.2em; }
-            .card { width: 140px; }
-            .card-container { gap: 10px; }
-            .modal-content { max-width: 200px; }
-             #modal-close-btn { top: -30px; right: -10px; width: 25px; height: 25px; font-size: 1em; line-height: 25px;}
-        }
+/* Busca Responsiva */
+.search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-s);
+  padding: var(--sp-xs) var(--sp-s);
+  border: 1px solid var(--roxo-2);
+  background: rgba(30, 30, 30, 0.5);
+  border-radius: var(--r-small);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--t-fast);
+  max-width: 450px;
+  width: 40%;
+  min-width: 40px;
+}
+.search:hover { background-color: rgba(40, 40, 40, 0.6); }
+.search:focus-within {
+  border-color: var(--verde);
+  background-color: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+  width: 60%;
+  max-width: 600px;
+}
+.search svg { color: var(--ink-2); flex-shrink: 0; width: 1.1rem; height: 1.1rem; }
+.search input {
+  flex-grow: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+.search input::placeholder { color: var(--ink-2); opacity: 0.7; font-style: italic; }
 
-        @media (max-width: 480px) { /* Celulares */
-             .main-header { flex-direction: column; height: auto; padding-bottom: 10px; }
-             .logo { font-size: 1.6em; margin-bottom: 8px; }
-            .search-container { width: 90%; text-align: center; }
-            .search-container input[type="text"] { width: 100%; max-width: 250px; }
-            #hero { height: 45vh; margin-top: 95px; } /* Ajuste maior devido ao header maior em coluna */
-            .highlight-text { font-size: 0.95em; }
-             .highlight-section h2 { font-size: 1em; }
-            .card { width: 120px; }
-            .modal-content { max-width: 180px; }
-        }
+/* ============================================================
+    HERO - Destaque com Vídeo YouTube Otimizado
+============================================================ */
+.hero {
+  position: relative;
+  height: clamp(500px, 85vh, 850px);
+  background-color: var(--bg-1);
+  overflow: hidden;
+  border-bottom: 2px solid var(--roxo-2);
+}
 
-    </style>
+/* Regra Robusta para Vídeo Background (Desktop e Mobile) */
+.hero__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  filter: contrast(1.1) saturate(1.1) brightness(0.85);
+  z-index: 1;
+}
+
+.hero__media iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.78vh); /* 100 * 16/9 = 177.78 */
+  height: max(100vh, 56.25vw); /* 100 * 9/16 = 56.25 */
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  border: none;
+  pointer-events: none; /* ESSENCIAL para não bloquear cliques */
+}
+
+/* Overlay e Conteúdo do Hero */
+.hero__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 25%),
+    linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 20%, transparent 50%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, var(--roxo-glow), transparent 70%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Alinha tudo para baixo */
+  align-items: center; /* Centraliza horizontalmente (afeta .hero__socials) */
+  padding: var(--sp-xxl);
+  padding-top: calc(var(--header-h) + var(--sp-xl));
+  max-width: 1400px;
+  margin: 0 auto;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+
+/* Wrapper para o conteúdo principal (título, desc, cta) */
+.hero__content-main {
+  align-self: flex-start; /* Puxa este bloco para a esquerda */
+  max-width: 65ch; /* Limita a largura do texto */
+}
+
+.hero__title {
+  color: var(--verde);
+  font-weight: 800;
+  font-size: clamp(2rem, 1.5rem + 3.5vw, 4rem);
+  line-height: 1.1;
+  margin-bottom: var(--sp-m);
+  text-shadow: 0 0 24px var(--accent-glow), 0 0 10px rgba(0, 255, 127, 0.5);
+}
+
+.hero__desc {
+  color: var(--ink);
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
+  margin-bottom: var(--sp-xl);
+}
+
+/* Botão Personalizado Hero (CTA Principal) */
+.hero__cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-s);
+  padding: var(--sp-s) var(--sp-l);
+  background-color: var(--verde);
+  color: var(--bg-0);
+  border-radius: var(--r-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: clamp(0.9rem, 0.8rem + 0.5vw, 1.1rem);
+  box-shadow: 0 6px 18px rgba(0, 255, 127, 0.3);
+  transition: transform var(--t-fast), background-color var(--t-fast), box-shadow var(--t-fast);
+  cursor: pointer;
+  border: none;
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.hero__cta-button img, .hero__cta-button svg {
+  height: 1.2em;
+  width: auto;
+  vertical-align: middle;
+}
+
+.hero__cta-button:hover, .hero__cta-button:focus-visible {
+  background-color: var(--verde-2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 255, 127, 0.4);
+  color: var(--bg-0);
+  text-decoration: none;
+}
+.hero__cta-button:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 255, 127, 0.2);
+}
+
+/* --- ESTILOS PARA BOTÕES SOCIAIS --- */
+.hero__socials {
+  display: flex;
+  justify-content: center; /* Centraliza os botões */
+  gap: var(--sp-l); /* Aumentado um pouco o espaço */
+  margin-top: var(--sp-xl); /* Espaço acima dos botões */
+  width: 100%; /* Ocupa a largura para centralizar */
+  padding-bottom: var(--sp-s); /* Espaço extra na parte inferior */
+}
+
+.social-btn {
+  display: grid; /* Usado para centralizar a imagem facilmente */
+  place-items: center;
+  width: var(--social-btn-size); /* Tamanho aumentado, usando variável */
+  height: var(--social-btn-size);
+  border-radius: 50%; /* Botões circulares */
+  background-color: rgba(255, 255, 255, 0.1); /* Fundo sutil */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--ink); /* Cor do ícone (SVG antigo, pode ser removido se não usar mais SVGs) */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transition: all var(--t-fast);
+  text-decoration: none;
+  overflow: hidden; /* Garante que a imagem não saia do círculo */
+}
+
+/* Estilo para a IMAGEM dentro do botão */
+.social-btn img {
+  width: var(--social-icon-size); /* Tamanho aumentado, usando variável */
+  height: var(--social-icon-size);
+  object-fit: contain; /* Ajusta a imagem sem distorcer */
+  transition: transform var(--t-fast);
+  display: block; /* Remove espaço extra abaixo da imagem */
+}
+
+/* Animações (Hover/Focus e Active) */
+.social-btn:hover, .social-btn:focus-visible {
+  background-color: var(--verde); /* Fundo muda para verde */
+  color: var(--bg-0); /* Pode remover se não usar mais SVGs com 'currentColor' */
+  border-color: var(--verde);
+  transform: translateY(-4px) scale(1.1); /* Eleva e aumenta */
+  box-shadow: 0 8px 20px var(--accent-glow); /* Adiciona brilho */
+  text-decoration: none;
+}
+
+.social-btn:hover img, .social-btn:focus-visible img {
+   /* Você pode adicionar um leve scale na imagem se desejar */
+   /* transform: scale(1.05); */
+}
+
+.social-btn:active {
+  transform: translateY(0px) scale(0.95); /* Efeito de clique */
+  box-shadow: 0 4px 10px var(--accent-glow);
+  transition-duration: 0.1s; /* Clique mais rápido */
+}
+
+
+/* ============================================================
+    SEÇÕES DE CARDS (Estilo unificado)
+============================================================ */
+.section {
+  padding: var(--sp-xxl) var(--sp-xl);
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.section__title {
+  color: var(--verde);
+  margin: 0 0 var(--sp-l) 0;
+  letter-spacing: 0.05em;
+  font-size: clamp(1.4rem, 1.1rem + 1.5vw, 1.8rem);
+  font-weight: 700;
+  border-left: 4px solid var(--verde);
+  padding-left: var(--sp-s);
+}
+
+.cards {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.8rem);
+  grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 18vw, 220px), 1fr));
+}
+
+.card {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--r-medium);
+  overflow: hidden;
+  background: var(--bg-1);
+  box-shadow: var(--shadow-soft);
+  transition: transform var(--t-med), box-shadow var(--t-med), outline-color var(--t-fast);
+  outline: 2px solid transparent;
+  cursor: pointer;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-5px) scale(1.07);
+  box-shadow: var(--shadow-strong);
+  z-index: 10;
+  outline-color: var(--verde);
+}
+
+.card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--t-slow), filter var(--t-med);
+}
+.card:hover .card__img,
+.card:focus-visible .card__img {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+}
+
+.card__label {
+  position: absolute;
+  left: var(--sp-s);
+  bottom: var(--sp-s);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--ink);
+  padding: var(--sp-xs) var(--sp-s);
+  border-radius: var(--r-tiny);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 5;
+}
+
+/* ============================================================
+    MODAL FOCUS (Layout robusto)
+============================================================ */
+.focus {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  z-index: 2500;
+  overflow-y: auto;
+  padding: var(--sp-m);
+}
+
+.focus.is-open {
+  display: grid;
+  animation: fadeIn var(--t-med);
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.focus__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(6px) saturate(110%);
+  -webkit-backdrop-filter: blur(6px) saturate(110%);
+  cursor: pointer;
+}
+
+.focus__panel {
+  position: relative;
+  width: 560px;
+  aspect-ratio: 2 / 3;
+  max-width: 92vw;
+  max-height: 92vh;
+  border-radius: var(--r-large);
+  overflow: hidden;
+  background-color: #0f0f0f;
+  box-shadow: var(--shadow-strong), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  animation: scaleUp var(--t-slow);
+  z-index: 10;
+}
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0.8; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.focus__media { position: relative; overflow: hidden; background-color: var(--bg-1); }
+.focus__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.65) contrast(1.05); }
+.focus__overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.8) 85%, rgba(0, 0, 0, 1) 100%); }
+
+.focus__close { position: absolute; top: var(--sp-m); right: var(--sp-m); z-index: 15; }
+
+.focus__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-s);
+  padding: var(--sp-m) var(--sp-l);
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(12, 12, 12, 0.99));
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.focus__title {
+  color: var(--verde);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.3rem, 1rem + 1.5vw, 2rem);
+  line-height: 1.2;
+}
+
+.focus__desc {
+  color: var(--ink);
+  font-size: clamp(0.95rem, 0.88rem + 0.4vw, 1.1rem);
+  line-height: 1.65;
+  max-height: 28vh;
+  overflow-y: auto;
+  padding-right: var(--sp-s);
+  scrollbar-width: thin;
+  scrollbar-color: var(--verde-2) rgba(255, 255, 255, 0.08);
+}
+.focus__desc::-webkit-scrollbar { width: 8px; }
+.focus__desc::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+.focus__desc::-webkit-scrollbar-thumb { background: linear-gradient(var(--verde-2), var(--verde)); border-radius: 4px; }
+.focus__desc:focus-visible { outline-offset: 0; }
+
+.focus__cta {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-m);
+  margin-top: auto;
+  padding-top: var(--sp-s);
+}
+
+/* Botões no Modal */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.3rem;
+  border-radius: var(--r-small);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  transition: all var(--t-fast);
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(1.15); transform: translateY(-1px); text-decoration: none; }
+.btn:active { transform: translateY(0px) scale(0.97); filter: brightness(0.9); }
+
+.btn--primary { background-color: var(--verde); color: #000; box-shadow: 0 6px 15px var(--accent-glow); }
+.btn--primary:hover { background-color: var(--verde-2); box-shadow: 0 8px 20px rgba(0, 255, 127, 0.4); }
+
+.btn--ghost { background-color: rgba(255, 255, 255, 0.12); color: var(--ink); border-color: rgba(255, 255, 255, 0.3); }
+.btn--ghost:hover { background-color: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.4); }
+
+.btn--close {
+    padding: 0;
+    background-color: rgba(30, 30, 30, 0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: var(--ink);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+.btn--close:hover { background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.4); }
+
+/* ============================================================
+    FOOTER
+============================================================ */
+.footer {
+  padding: var(--sp-xl) var(--sp-xxl);
+  color: var(--ink-2);
+  text-align: center;
+  border-top: 1px solid var(--roxo-2);
+  background-color: var(--bg-1);
+  font-size: 0.85rem;
+  margin-top: auto;
+}
+.footer p { margin: 0; }
+
+/* --- MUDANÇA: Estilo para o link "pause" no rodapé --- */
+.footer-link--pause {
+    color: var(--verde-fluorescente);
+    font-weight: bold; /* Opcional: deixar mais destacado */
+    text-decoration: none; /* Remove sublinhado padrão */
+    transition: text-shadow var(--t-fast);
+}
+.footer-link--pause:hover,
+.footer-link--pause:focus-visible {
+    text-shadow: 0 0 8px var(--verde-fluorescente); /* Efeito de brilho no hover/focus */
+    color: var(--verde-fluorescente); /* Mantém a cor */
+    text-decoration: underline; /* Adiciona sublinhado no hover/focus */
+}
+
+/* ============================================================
+    MEDIA QUERIES (Ajustes responsivos)
+============================================================ */
+
+/* Telas Médias (Tablets) */
+@media (max-width: 992px) {
+  :root {
+    --header-h: 4rem; /* 64px */
+    --sp-xxl: 1.5rem;
+    --sp-xl: 1.25rem;
+  }
+  .header { padding: 0 var(--sp-xl); }
+  .hero { height: min(75vh, 700px); }
+  .search { width: auto; max-width: 350px; flex-shrink: 1; }
+  .focus__panel { max-width: 85vw; }
+}
+
+/* Telas Pequenas (Celulares) */
+@media (max-width: 600px) {
+  :root {
+    --header-h: 3.75rem; /* 60px */
+    --sp-xl: 1rem;
+    --sp-xxl: 1.25rem;
+    --base-font-size: 15px;
+  }
+
+  /* Ajuste no Header para Busca */
+  .header { padding: 0 var(--sp-m); }
+  .header__inner { gap: var(--sp-s); flex-wrap: wrap; padding-top: var(--sp-xs); padding-bottom: var(--sp-xs); height: auto; min-height: var(--header-h); }
+  .brand { order: 1; }
+  .search {
+      order: 3; /* Busca vai para a linha de baixo */
+      width: 100%; /* Ocupa largura total */
+      max-width: none;
+      margin-left: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      flex-grow: 1;
+  }
+  .search:focus-within { width: 100%; }
+
+  /* Ajuste no Conteúdo Principal */
+  /* --- MUDANÇA: Padding-top ajustado para acomodar o header de duas linhas --- */
+  main { padding-top: calc(var(--header-h) + 3rem); /* Ajuste conforme a altura real do header + busca */ }
+  .hero { margin-top: 0; } /* Remove margem duplicada */
+
+
+  .hero { height: min(70vh, 600px); }
+  .hero__content { padding: var(--sp-xl); padding-top: var(--sp-s); }
+
+  /* --- MUDANÇA: Alinhamento de texto à esquerda no mobile --- */
+  .hero__content-main {
+      align-self: stretch; /* Ocupa 100% da largura */
+      max-width: none; /* Remove a limitação de 65ch */
+      text-align: left; /* Garante alinhamento à esquerda */
+  }
+
+  .hero__title { font-size: clamp(1.8rem, 1.2rem + 5vw, 2.8rem); }
+  .hero__desc { font-size: clamp(0.9rem, 0.8rem + 1vw, 1.05rem); margin-bottom: var(--sp-l); }
+  .hero__cta-button { padding: var(--sp-s) var(--sp-m); font-size: clamp(0.85rem, 0.75rem + 1vw, 1rem); }
+  .hero__cta-button img, .hero__cta-button svg { height: 1.1em; }
+
+  /* --- MUDANÇA: Botões sociais no mobile --- */
+  .hero__socials { margin-top: var(--sp-l); gap: var(--sp-m); } /* Mantido gap */
+  .social-btn {
+      width: var(--social-btn-size-mobile); /* Usa variável mobile aumentada */
+      height: var(--social-btn-size-mobile);
+  }
+  .social-btn img {
+      width: var(--social-icon-size-mobile); /* Usa variável mobile aumentada */
+      height: var(--social-icon-size-mobile);
+  }
+
+
+  .section { padding: var(--sp-xl); }
+  .section__title { font-size: clamp(1.2rem, 1rem + 1.2vw, 1.5rem); margin-bottom: var(--sp-m); }
+  .cards { gap: var(--sp-m); grid-template-columns: repeat(2, 1fr); }
+
+  .focus { padding: var(--sp-xs); }
+  .focus__panel { max-width: 96vw; max-height: 96vh; }
+  .focus__close { top: var(--sp-s); right: var(--sp-s); }
+  .focus__content { padding: var(--sp-m); gap: var(--sp-xs); }
+  .focus__title { font-size: clamp(1.2rem, 1rem + 1.8vw, 1.8rem); }
+  .focus__desc { max-height: 35vh; font-size: clamp(0.9rem, 0.85rem + 0.5vw, 1rem); }
+  .focus__cta { gap: var(--sp-s); }
+  .btn { padding: 0.7rem 1.1rem; font-size: 0.9rem; }
+  .btn--close { width: 2.2rem; height: 2.2rem; font-size: 1rem; }
+}
+
+</style>
 </head>
 <body>
-
-    <header class="main-header">
-        <div class="logo">Pause</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Buscar títulos...">
-        </div>
-    </header>
-
-    <main>
-        <section id="hero">
-            <div class="video-carousel-container">
-                <div id="youtube-player"></div> </div>
-           </section>
-
-        <section class="highlight-section">
-            <p class="highlight-text">
-                Todos os filmes passam por edição de imagem e som, feitos no CapCut e,
-                em alguns casos, no After Effects, o que gera custos de produção.
-                Quem quiser assistir pode aproveitar por apenas R$1,99. É só clicar e curtir o filme!
-                Desde já, agradeço a todos os seguidores. Ah, e se quiserem, filmes têm muitos na
-                internet… mas não com a minha qualidade! Fiquem à vontade para escolher, a internet é bem ampla.
-                <h2>Por conta de algumas pessoas que me xingaram e me falaram um monte de coisas os filmes NÃO SERÁ MAIS GRÁTIS!</h2>
-            </p>
-        </section>
-
-        <section class="content-row">
-            <h2>Em Alta</h2>
-            <div class="card-container" id="em-alta-container">
-                 <a href="https://wa.me/5511942439819?text=Quer%20assistir%20a%20%22A%20vida%20de%20CHUCK%22%3F%0A%EF%BF%BD%20Colabora%20com%20apenas%20R%241%2C99%20no%20Pix%20e%20eu%20te%20mando%20o%20link%20direto!%0A%C3%89%20s%C3%B3%20comentar%20%E2%80%9CEU%20QUERO%E2%80%9D%20que%20te%20envio%20o%20Pix%20na%20hora.%0ASimples%2C%20r%C3%A1pido%20e%20garantido.%20%EF%BF%BD" class="card" data-title="A vida de chuck" target="_blank"><img src="chuck.jpg" alt="A vida de chuck"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Comédia Romântica 2" target="_blank"><img src="indisponivel.jpg" alt="Comédia Romântica 2"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Documentário Natureza 3" target="_blank"><img src="indisponivel.jpg" alt="Documentário Natureza 3"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Ficção Científica 4" target="_blank"><img src="indisponivel.jpg" alt="Ficção Científica 4"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Suspense Psicológico 5" target="_blank"><img src="indisponivel.jpg" alt="Suspense Psicológico 5"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Animação Aventura 6" target="_blank"><img src="indisponivel.jpg" alt="Animação Aventura 6"></a>
-            </div>
-        </section>
-
-        <section class="content-row">
-            <h2>Séries</h2>
-            <div class="card-container" id="series-container">
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Drama 1" target="_blank"><img src="indisponivel.jpg" alt="Série Drama 1"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Comédia 2" target="_blank"><img src="indisponivel.jpg" alt="Série Comédia 2"></a>
-                 <a href="https://wa.me/5511942439819?text=Ol%C3%A1%20tudo%20bom%20vamos%20assistir%20um%20bom%20filme%3F%0AFilmes%20dispon%C3%ADveis%20das%2012%3A00%20as%2000%3A00!%20" class="card" data-title="Série Mistério 3" target="_blank"><img src="indisponivel.jpg" alt="Série Mistério 3"></a>
-            </div>
-        </section>
-    </main>
-
-    <div id="search-result-modal">
-        <div class="modal-content">
-            <button id="modal-close-btn">&times;</button>
-            <img id="modal-movie-image" src="" alt="Capa do Filme Selecionado">
-        </div>
+  <header class="header" role="banner">
+    <div class="header__inner">
+      <a href="#" class="brand" aria-label="Pause Home">Pause</a>
+      <label class="search" aria-label="Buscar filmes">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M21.53 20.47l-4.59-4.6a8 8 0 10-1.06 1.06l4.6 4.59a.75.75 0 101.06-1.06zM10.5 17a6.5 6.5 0 110-13 6.5 6.5 0 010 13z"/></svg>
+        <input id="searchInput" type="search" placeholder="Buscar títulos..." autocomplete="off" aria-controls="cardsGrid cardsGridColetaneas" />
+      </label>
     </div>
+  </header>
 
-    <footer class="main-footer">
-        <p>&copy; 2025 Pause. Todos os direitos reservados.</p>
-    </footer>
+  <main role="main">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero__media" aria-hidden="true">
+        <iframe
+          id="heroYouTubeVideo"
+          src="https://www.youtube.com/embed/Efxfx4eFcm4?autoplay=1&mute=1&loop=1&playlist=Efxfx4eFcm4&controls=0&showinfo=0&iv_load_policy=3&disablekb=1&modestbranding=1"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Vídeo de fundo do YouTube"
+        ></iframe>
+      </div>
+      <div class="hero__fx"></div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
+      <div class="hero__content">
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        <div class="hero__content-main">
+          <h2 class="hero__title" id="heroTitle">Filmes Editados SOM E IMAGEM.</h2>
+          <p class="hero__desc">Logo terá mais filmes mas preciso de sua ajuda e compreensão.</p>
+          <a href="https://pay.kirvano.com/r/7b7712a2-90d1-4ce7-8eb7-3ea91f5e4fb3" class="hero__cta-button" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>Agora Se Quiser Uma Assinatura Aonde tem HBO, NETFLIX, AMAZON, APPLE TV E TODOS OS CANAIS E MUITO MAIS É AQUI
+              CLIQUE AGORA
+            </span>
+          </a>
+        </div>
 
-            // --- Lógica do Header com Scroll ---
-            const header = document.querySelector('.main-header');
-            if(header) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 50) {
-                        header.classList.add('scrolled');
-                    } else {
-                        header.classList.remove('scrolled');
-                    }
-                });
+        <div class="hero__socials" role="list">
+
+          <a href="https://www.youtube.com/watch?v=TLC9q724YIc" class="social-btn" aria-label="Visite nosso Youtube" target="_blank" rel="noopener noreferrer" role="listitem" title="Youtube">
+            <img src="youtube.png" alt="Youtube" />
+          </a>
+
+          <a href="https://www.instagram.com/pauseoficial/" class="social-btn" aria-label="Visite nosso Instagram" target="_blank" rel="noopener noreferrer" role="listitem" title="Instagram">
+            <img src="instagram.png" alt="Instagram" />
+          </a>
+
+          <a href="https://www.tiktok.com/@p_aause" class="social-btn" aria-label="Visite nosso Tiktok" target="_blank" rel="noopener noreferrer" role="listitem" title="Tiktok">
+            <img src="tiktok.png" alt="Tiktok" />
+          </a>
+
+          <a href="https://reserva.ink/pause" class="social-btn" aria-label="Visite nossa loja de camisetas" target="_blank" rel="noopener noreferrer" role="listitem" title="Loja de Camisetas">
+            <img src="camisetas.png" alt="Loja de Camisetas" />
+          </a>
+
+          </div>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="sectionTitleTrending">
+      <h3 class="section__title" id="sectionTitleTrending">LanÇamentos</h3>
+      <div class="cards" id="cardsGrid" role="list">
+        <article class="card" role="listitem" tabindex="0"
+          data-title="A Vida de Chuck"
+          data-desc="Um drama emocionante baseado em Stephen King. Três atos que revelam o extraordinário no ordinário, com fotografia sensível e atuações de tirar o fôlego."
+          data-link="https://wa.me/5511942439819?text=%E2%9C%A8%20Ei%2C%20tudo%20bem%3F%0AManter%20esse%20site%20no%20ar%20d%C3%A1%20trabalho%20%E2%80%94%20e%20custa%20caro.%0AMas%20eu%20quero%20continuar%20entregando%20conte%C3%BAdo%20de%20valor%2C%20sem%20encher%20voc%C3%AA%20de%20an%C3%BAncios%20ou%20promessas%20falsas.%0APor%20isso%2C%20se%20este%20espa%C3%A7o%20te%20agradou.%0AConsidere%20fazer%20uma%20pequena%20contribui%C3%A7%C3%A3o%20de%20R%241%2C95%20via%20Pix.%20%F0%9F%92%9B%0A%C3%89%20pouco%20pra%20voc%C3%AA%2C%20mas%20faz%20toda%20diferen%C3%A7a%20pra%20quem%20cria%20com%20verdade.%0AE%20se%20voc%C3%AA%20quer%20assistir%20%E2%80%9CA%20Vida%20de%20CHUCK%E2%80%9D.%0A%F0%9F%8E%AC%20Colabore%20com%20apenas%20R%241%2C95%20no%20Pix%20e%20eu%20te%20envio%20o%20link%20direto%20%E2%80%94%20r%C3%A1pido%2C%20simples%20e%20garantido.%0AEscreva%20%E2%80%9CEU%20QUERO%E2%80%9D%20e%20te%20passo%20o%20link%20do%20filme.%0ASem%20burocracia%2C%20sem%20enrola%C3%A7%C3%A3o.%0A%F0%9F%92%AC%20Afinal%E2%80%A6%20quem%20apoia%20o%20que%20ama%2C%20ajuda%20a%20manter%20vivo%20o%20que%20acredita.">
+          <img class="card__img" loading="lazy" src="chuck.jpg" alt="Capa de A Vida de Chuck" />
+          <span class="card__label">Drama</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/assistir/piratas">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de Piratas do Caribe" />
+          <span class="card__label">Aventura</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/assistir/interestelar">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de Interestelar" />
+          <span class="card__label">Ficção científica</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/assistir/johnwick">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de John Wick" />
+          <span class="card__label">Ação</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/assistir/relogio">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de O Conto do Relógio" />
+          <span class="card__label">Fantasia</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="sectionTitleColetaneas">
+      <h3 class="section__title" id="sectionTitleColetaneas">CoLetÂneas</h3>
+      <div class="cards" id="cardsGridColetaneas" role="list">
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="Piratas do Caribe"
+          data-desc="Espadas, rum e aventura. A saga que redefiniu a pirataria no cinema moderno com humor e trilha inesquecível."
+          data-link="https://wa.me/5511942439819?text=%E2%9C%A8%20Ei%2C%20tudo%20bem%3F%0AManter%20esse%20site%20no%20ar%20d%C3%A1%20trabalho%20%E2%80%94%20e%20custa%20caro.%0AMas%20eu%20quero%20continuar%20entregando%20conte%C3%BAdo%20de%20valor%2C%20sem%20encher%20voc%C3%AA%20de%20an%C3%BAncios%20ou%20promessas%20falsas.%0APor%20isso%2C%20se%20este%20espa%C3%A7o%20te%20agradou.%0AConsidere%20fazer%20uma%20pequena%20contribui%C3%A7%C3%A3o%20de%20R%242%2C95%20via%20Pix.%20%F0%9F%92%9B%0A%C3%89%20pouco%20pra%20voc%C3%AA%2C%20mas%20faz%20toda%20diferen%C3%A7a%20pra%20quem%20cria%20com%20verdade.%0AE%20se%20voc%C3%AA%20quer%20assistir%20%E2%80%9CA%20COLETANEA%20DE%20PIRATAS%20DO%20CARIBE%E2%80%9D.%0A%F0%9F%8E%AC%20Colabore%20com%20apenas%20R%242%2C95%20no%20Pix%20e%20eu%20te%20envio%20o%20link%20direto%20%E2%80%94%20r%C3%A1pido%2C%20simples%20e%20garantido.%0AEscreva%20%E2%80%9CEU%20QUERO%E2%80%9D%20e%20te%20passo%20o%20link%20do%20filme.%0ASem%20burocracia%2C%20sem%20enrola%C3%A7%C3%A3o.%0A%F0%9F%92%AC%20Afinal%E2%80%A6%20quem%20apoia%20o%20que%20ama%2C%20ajuda%20a%20manter%20vivo%20o%20que%20acredita.">
+          <img class="card__img" loading="lazy" src="piratas.jpg" alt="piratas do caribe" />
+          <span class="card__label">AvenTura</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/coletanea/terror80">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Coletânea Terror Anos 80" />
+          <span class="card__label">Terror</span>
+        </article>
+
+        <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/coletanea/comrom">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Coletânea Comédias Românticas" />
+          <span class="card__label">Comédia</span>
+        </article>
+
+         <article class="card" role="listitem" tabindex="0"
+          data-title="TÍtulo"
+          data-desc="Descrição"
+          data-link="https://exemplo.com/coletanea/acao">
+          <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Coletânea Ação Eletrizante" />
+          <span class="card__label">Ação</span>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="focus" id="focusLayer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="focusTitle">
+    <div class="focus__backdrop" id="focusBackdrop" title="Fechar"></div>
+    <div class="focus__panel" id="focusPanel">
+      <div class="focus__close">
+        <button class="btn btn--close" id="focusCloseBtn" aria-label="Fechar detalhes do filme">✕</button>
+      </div>
+      <div class="focus__media">
+        <img class="focus__img" id="focusImg" alt="" />
+        <div class="focus__overlay"></div>
+      </div>
+      <div class="focus__content">
+        <h4 class="focus__title" id="focusTitle">Carregando...</h4>
+        <div class="focus__desc" id="focusDesc" tabindex="0">Carregando descrição...</div>
+        <div class="focus__cta">
+          <a class="btn btn--primary" id="watchBtn" href="#" target="_blank" rel="noopener noreferrer">Assistir Agora</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer" role="contentinfo">
+    <p>Feito pela empresa <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="footer-link footer-link--pause" target="_blank" rel="noopener noreferrer">pause</a></p>
+  </footer>
+
+<script>
+/* ============================================================
+    JAVASCRIPT - LÓGICA DA INTERFACE PROFISSIONAL
+    Escopo protegido, seletores otimizados, e código robusto.
+    (Nenhuma alteração funcional feita no JavaScript)
+============================================================ */
+'use strict';
+
+/**
+ * Encapsula todo o script em uma IIFE (Immediately Invoked Function Expression)
+ * para proteger o escopo global e evitar conflitos.
+ */
+(function() {
+
+  // --- Seletores e Variáveis Globais ---
+  const $ = (selector, context = document) => context.querySelector(selector);
+  const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
+
+  const DOMElements = {
+    body: document.body,
+    docElement: document.documentElement,
+    header: $('.header'),
+    allCards: $$('.card'),
+    searchInput: $('#searchInput'),
+    focusLayer: $('#focusLayer'),
+    focusBackdrop: $('#focusBackdrop'),
+    focusPanel: $('#focusPanel'),
+    focusImg: $('#focusImg'),
+    focusTitle: $('#focusTitle'),
+    focusDesc: $('#focusDesc'),
+    watchBtn: $('#watchBtn'),
+    focusCloseBtn: $('#focusCloseBtn'),
+    heroVideoIframe: $('#heroYouTubeVideo')
+  };
+
+  // Estado da aplicação
+  let currentCard = null;
+  let lastTrigger = null;
+  let searchTimeoutId = null;
+  let resizeTimeoutId = null;
+
+  // Constantes para 'magic numbers'
+  const TRANSITION_DURATION = 450; // ms (baseado em --t-slow)
+  const SEARCH_DEBOUNCE = 300; // ms
+  const RESIZE_DEBOUNCE = 150; // ms
+
+  // --- Funções de Lógica ---
+
+  function computeFocusSize() {
+    if (!DOMElements.focusPanel) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const padding = Math.max(16, Math.min(vw, vh) * 0.04);
+    const maxW = vw - 2 * padding;
+    const maxH = vh - 2 * padding;
+    const targetAspectRatio = 2 / 3; // W/H
+    let panelW = maxW;
+    let panelH = panelW / targetAspectRatio;
+    if (panelH > maxH) {
+      panelH = maxH;
+      panelW = panelH * targetAspectRatio;
+    }
+    DOMElements.focusPanel.style.width = `${panelW}px`;
+    DOMElements.focusPanel.style.height = `${panelH}px`;
+  }
+
+  function openFocus(card) {
+    if (!card || !DOMElements.focusLayer || DOMElements.focusLayer.classList.contains('is-open')) return;
+    const requiredModalElements = [
+        DOMElements.focusTitle, DOMElements.focusDesc, DOMElements.focusImg,
+        DOMElements.watchBtn, DOMElements.focusCloseBtn, DOMElements.focusPanel
+    ];
+    if (requiredModalElements.some(el => !el)) {
+        console.error("Erro fatal: Elementos do modal não foram encontrados. Abortando openFocus.");
+        return;
+    }
+    currentCard = card;
+    lastTrigger = document.activeElement || DOMElements.body;
+    const title = card.dataset.title || 'Título Indisponível';
+    const desc = card.dataset.desc || 'Descrição indisponível.';
+    const link = card.dataset.link || '#';
+    const imgElement = $('.card__img', card);
+    const imgSrc = imgElement?.src || '';
+    DOMElements.focusTitle.textContent = title;
+    DOMElements.focusDesc.textContent = desc;
+    DOMElements.focusDesc.scrollTop = 0;
+    DOMElements.focusImg.src = imgSrc;
+    DOMElements.focusImg.alt = `Capa promocional de ${title}`;
+    DOMElements.watchBtn.href = link;
+    computeFocusSize();
+    DOMElements.focusLayer.style.display = 'grid';
+    DOMElements.focusLayer.offsetHeight; // Força reflow
+    DOMElements.focusLayer.classList.add('is-open');
+    DOMElements.focusLayer.setAttribute('aria-hidden', 'false');
+    DOMElements.focusPanel.setAttribute('tabindex', '-1');
+    DOMElements.docElement.style.overflow = 'hidden';
+    DOMElements.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      DOMElements.focusCloseBtn.focus();
+    }, 50);
+  }
+
+  function closeFocus() {
+    if (!DOMElements.focusLayer || !DOMElements.focusLayer.classList.contains('is-open')) return;
+    DOMElements.focusLayer.classList.remove('is-open');
+    DOMElements.focusLayer.setAttribute('aria-hidden', 'true');
+    DOMElements.focusPanel.removeAttribute('tabindex');
+    setTimeout(() => {
+      if (currentCard === null) {
+          DOMElements.focusLayer.style.display = 'none';
+          DOMElements.docElement.style.overflow = '';
+          DOMElements.body.style.overflow = '';
+          if (lastTrigger && typeof lastTrigger.focus === 'function') {
+            try {
+              lastTrigger.focus({ preventScroll: true });
+            } catch (e) {
+              console.warn("Não foi possível retornar o foco.", e);
+              DOMElements.body.focus();
             }
+          }
+          lastTrigger = null;
+      }
+    }, TRANSITION_DURATION);
+    currentCard = null;
+  }
 
-            // --- Lógica do Carrossel de Vídeos ---
-            let player;
-            const videoUrls = [
-                 'https://www.youtube.com/watch?v=CTIALKjOWhk',
-                 'https://www.youtube.com/watch?v=QdBZY2fkU-0', // Exemplo de outro vídeo
-                 'https://www.youtube.com/watch?v=StnauHmX6_I'
-            ];
-            let currentVideoIndex = 0;
-            let isTransitioning = false; // Flag para controle de transição
+  function filterAndFocusCards(term) {
+    let firstMatch = null;
+    const lowerTerm = term.trim().toLowerCase();
+    DOMElements.allCards.forEach(card => {
+      const title = (card.dataset.title || '').toLowerCase();
+      const isMatch = lowerTerm === '' || title.includes(lowerTerm);
+      const currentDisplay = card.style.display || '';
+      const newDisplay = isMatch ? '' : 'none';
+      if (currentDisplay !== newDisplay) {
+        card.style.display = newDisplay;
+      }
+      if (isMatch && !firstMatch && lowerTerm !== '') {
+        firstMatch = card;
+      }
+    });
+    if (firstMatch) {
+      firstMatch.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => openFocus(firstMatch), 400);
+    }
+    else if (DOMElements.focusLayer?.classList.contains('is-open')) {
+      closeFocus();
+    }
+  }
 
-            function extractVideoID(url) {
-                 const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                 const match = url.match(regExp);
-                 if (match && match[2].length === 11) {
-                     return match[2];
-                 } else {
-                     console.error("ID do vídeo inválido ou não extraído da URL:", url);
-                     return null;
-                 }
-            }
+  function setupEventListeners() {
+    DOMElements.focusBackdrop?.addEventListener('click', closeFocus);
+    DOMElements.focusCloseBtn?.addEventListener('click', closeFocus);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && DOMElements.focusLayer?.classList.contains('is-open')) {
+        e.preventDefault();
+        closeFocus();
+      }
+    });
+    DOMElements.allCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        openFocus(card);
+      });
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openFocus(card);
+        }
+      });
+    });
+    if (DOMElements.searchInput) {
+      DOMElements.searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeoutId);
+        searchTimeoutId = setTimeout(() => {
+          filterAndFocusCards(DOMElements.searchInput.value);
+        }, SEARCH_DEBOUNCE);
+      });
+       DOMElements.searchInput.addEventListener('search', () => {
+           if(DOMElements.searchInput.value === '') {
+               filterAndFocusCards('');
+           }
+       });
+    } else {
+        console.warn("Elemento 'searchInput' não encontrado.");
+    }
+    window.addEventListener('resize', () => {
+      if (!DOMElements.focusLayer?.classList.contains('is-open')) return;
+      clearTimeout(resizeTimeoutId);
+      resizeTimeoutId = setTimeout(computeFocusSize, RESIZE_DEBOUNCE);
+    });
+  }
 
-            // Esta função é chamada automaticamente pela API do YouTube quando ela está pronta
-            window.onYouTubeIframeAPIReady = function() {
-                console.log("YouTube API Ready");
-                const firstVideoId = extractVideoID(videoUrls[currentVideoIndex]);
-                if (!firstVideoId) {
-                    console.error("O primeiro URL da lista é inválido:", videoUrls[currentVideoIndex]);
-                    return;
-                }
-                console.log("Initializing player with video ID:", firstVideoId);
+  function initialize() {
+    if (!DOMElements.focusLayer) {
+       console.error("Elemento crucial 'focusLayer' não encontrado. Modal não funcionará.");
+       return;
+    }
+    setupEventListeners();
+    console.info(`Pause App: Inicializado com sucesso. ${DOMElements.allCards.length} cards encontrados.`);
+  }
 
-                player = new YT.Player('youtube-player', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: firstVideoId,
-                    playerVars: {
-                        'autoplay': 1,       // Autoplay
-                        'controls': 0,       // Sem controles
-                        'showinfo': 0,       // Sem título
-                        'rel': 0,            // Sem vídeos relacionados no final
-                        'iv_load_policy': 3, // Sem anotações
-                        'modestbranding': 1, // Logo YouTube menor
-                        'loop': 0,           // Loop manual via API, não automático
-                        'mute': 1            // Mudo (necessário para autoplay em muitos browsers)
-                       // 'playlist' removido para garantir que onStateChange (ENDED) funcione
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-            }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
 
-            function onPlayerReady(event) {
-                console.log("Player Ready, playing video:", videoUrls[currentVideoIndex]);
-                event.target.playVideo(); // Inicia o vídeo
-                adjustPlayerSize();       // Ajusta o tamanho inicial
-            }
-
-            function onPlayerStateChange(event) {
-                console.log("Player State Change:", event.data, "Current Index:", currentVideoIndex, "Transitioning:", isTransitioning);
-                // YT.PlayerState.ENDED = 0
-                if (event.data == YT.PlayerState.ENDED && !isTransitioning) {
-                    isTransitioning = true; // Marca que a transição começou
-                    console.log("Video Ended. Playing next video...");
-                    playNextVideo();
-                } else if (event.data == YT.PlayerState.PLAYING) {
-                     // Resetar a flag quando um vídeo começa a tocar garante que o próximo ENDED funcione
-                    if (isTransitioning) {
-                       console.log("Resetting transition flag because video started playing.");
-                       isTransitioning = false;
-                    }
-                    console.log("Video is playing:", videoUrls[currentVideoIndex]);
-                } else if (event.data == YT.PlayerState.PAUSED && isTransitioning) {
-                     // Caso raro: se pausar durante a transição, resetar a flag
-                     console.log("Resetting transition flag because video paused during transition attempt.");
-                     isTransitioning = false;
-                }
-            }
-
-            function playNextVideo() {
-                 console.log("playNextVideo called. Current index before increment:", currentVideoIndex);
-                currentVideoIndex++;
-                if (currentVideoIndex >= videoUrls.length) {
-                    currentVideoIndex = 0; // Volta para o primeiro vídeo
-                    console.log("Looping back to index 0.");
-                }
-                 console.log("New index:", currentVideoIndex);
-
-                const nextVideoUrl = videoUrls[currentVideoIndex];
-                const nextVideoId = extractVideoID(nextVideoUrl);
-
-                if (nextVideoId) {
-                    console.log("Loading next video ID:", nextVideoId, "from URL:", nextVideoUrl);
-                    if(player && typeof player.loadVideoById === 'function') {
-                        player.loadVideoById(nextVideoId); // Carrega o próximo vídeo
-                        // CORREÇÃO: Adicionar playVideo() após loadVideoById para iniciar a reprodução
-                        player.playVideo();
-                        adjustPlayerSize(); // Reajusta o tamanho se necessário
-                        // A flag isTransitioning será resetada no evento PLAYING
-                    } else {
-                        console.error("Player object not ready or loadVideoById not available.");
-                         isTransitioning = false; // Resetar se o player não estiver pronto
-                    }
-                } else {
-                    console.error("Invalid URL at index", currentVideoIndex, ":", nextVideoUrl);
-                    isTransitioning = false; // Resetar se a URL for inválida
-                    // Tenta pular para o próximo vídeo válido se houver mais de um
-                    if (videoUrls.length > 1) {
-                         console.log("Attempting to skip invalid URL and play next.");
-                        // Chama recursivamente com cuidado para evitar loop infinito se todas forem inválidas
-                        // Uma alternativa seria ter um contador de tentativas ou apenas avançar o índice
-                        // Vamos apenas avançar o índice e tentar carregar o próximo na próxima chamada
-                         // playNextVideo(); // Evitar recursão aqui, deixar o próximo evento ENDED (se ocorrer) ou um timer tratar
-                    }
-                }
-            }
-
-
-            function adjustPlayerSize() {
-                const heroSection = document.getElementById('hero');
-                const playerElement = document.getElementById('youtube-player');
-                if (!heroSection || !playerElement || !player || typeof player.getIframe !== 'function') return;
-
-                const playerIframe = player.getIframe();
-                if(!playerIframe) return;
-
-                const heroRatio = heroSection.offsetWidth / heroSection.offsetHeight;
-                const videoRatio = 16 / 9; // Proporção padrão de vídeo
-
-                if (heroRatio > videoRatio) {
-                    // Seção mais larga que o vídeo: ajustar largura para 100%, calcular altura
-                    playerIframe.style.width = heroSection.offsetWidth + 'px';
-                    playerIframe.style.height = (heroSection.offsetWidth / videoRatio) + 'px';
-                } else {
-                    // Seção mais alta que o vídeo: ajustar altura para 100%, calcular largura
-                    playerIframe.style.height = heroSection.offsetHeight + 'px';
-                    playerIframe.style.width = (heroSection.offsetHeight * videoRatio) + 'px';
-                }
-                 // Re-centralizar após redimensionar (já está com translate(-50%, -50%))
-                 playerIframe.style.top = '50%';
-                 playerIframe.style.left = '50%';
-                 playerIframe.style.transform = 'translate(-50%, -50%)';
-            }
-            window.addEventListener('resize', adjustPlayerSize);
-
-            // --- Lógica da Busca e do Modal ---
-            const searchInput = document.getElementById('searchInput');
-            const allCards = document.querySelectorAll('.card-container .card'); // Seleciona todos os cards de todos os containers
-            const searchResultModal = document.getElementById('search-result-modal');
-            const modalMovieImage = document.getElementById('modal-movie-image');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-
-            function filterAndPotentiallyShowResult() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                let exactMatchCard = null;
-                let foundVisibleCard = false; // Para verificar se algum card está visível após filtrar
-
-                // Esconde todas as fileiras inicialmente se houver termo de busca
-                const allRows = document.querySelectorAll('.content-row');
-                 if(searchTerm) {
-                     allRows.forEach(row => row.style.display = 'none');
-                 } else {
-                     allRows.forEach(row => row.style.display = 'block'); // Mostra todas se busca vazia
-                 }
-
-
-                allCards.forEach(card => {
-                    const title = (card.getAttribute('data-title') || "").toLowerCase();
-                    const parentRow = card.closest('.content-row'); // Encontra a fileira pai
-
-                    if (!searchTerm) { // Se a busca está vazia, mostra todos os cards
-                        card.style.display = 'block';
-                        foundVisibleCard = true; // Marca que há cards visíveis
-                    } else if (title.includes(searchTerm)) {
-                         card.style.display = 'block'; // Mostra o card
-                         if(parentRow) parentRow.style.display = 'block'; // Mostra a fileira pai
-                        foundVisibleCard = true; // Marca que há cards visíveis
-                        if (title === searchTerm && !exactMatchCard) { // Verifica correspondência exata
-                            exactMatchCard = card;
-                        }
-                    } else {
-                         card.style.display = 'none'; // Esconde o card
-                    }
-                });
-
-                 // Se houver uma correspondência exata, mostra o modal
-                if (exactMatchCard) {
-                    const imgSrc = exactMatchCard.querySelector('img')?.src;
-                    if (imgSrc) {
-                        modalMovieImage.src = imgSrc;
-                        modalMovieImage.alt = exactMatchCard.getAttribute('data-title');
-                        searchResultModal.classList.add('show-modal');
-                    }
-                } else if (searchTerm && !foundVisibleCard) {
-                    // Opcional: Mostrar mensagem de "Nenhum resultado encontrado"
-                    console.log("Nenhum resultado encontrado para:", searchTerm);
-                     // Poderia adicionar um elemento no HTML para exibir essa mensagem
-                }
-            }
-
-            function closeModal() {
-                searchResultModal.classList.remove('show-modal');
-                modalMovieImage.src = ""; // Limpa a imagem para evitar piscar na próxima abertura
-                modalMovieImage.alt = "";
-            }
-
-            if (searchInput) {
-                 searchInput.addEventListener('input', filterAndPotentiallyShowResult);
-            } else {
-                console.warn("Elemento 'searchInput' não encontrado.");
-            }
-
-            if (modalCloseBtn) {
-                 modalCloseBtn.addEventListener('click', closeModal);
-            } else {
-                 console.warn("Elemento 'modalCloseBtn' não encontrado.");
-            }
-
-
-            if (searchResultModal) {
-                 // Fechar modal clicando fora da imagem
-                 searchResultModal.addEventListener('click', (event) => {
-                     // Verifica se o clique foi no fundo do modal (fora do modal-content)
-                     if (event.target === searchResultModal) {
-                        closeModal();
-                     }
-                 });
-            } else {
-                console.warn("Elemento 'searchResultModal' não encontrado.");
-            }
-
-
-            // CORREÇÃO: Remover o listener de clique que abre o modal em TODOS os cards.
-            // Isso conflitava com o link do WhatsApp e causava o bug do hover persistente.
-            // O modal agora só abre com a busca por correspondência exata.
-            /*
-             allCards.forEach(card => {
-                 card.addEventListener('click', (event) => {
-                     // Previne o comportamento padrão do link A SE NECESSÁRIO
-                     // event.preventDefault(); // Descomente se não quiser ir para o WhatsApp
-
-                     const targetCard = event.target.closest('.card');
-                     if (targetCard) {
-                         const imgSrc = targetCard.querySelector('img')?.src;
-                         const title = targetCard.getAttribute('data-title');
-                         if (imgSrc && modalMovieImage && searchResultModal) {
-                             modalMovieImage.src = imgSrc;
-                             modalMovieImage.alt = title || "Capa do Filme";
-                             searchResultModal.classList.add('show-modal');
-                         } else {
-                              console.error("Não foi possível encontrar img, modalMovieImage ou searchResultModal");
-                         }
-                     }
-                 });
-             });
-             */
-
-        });
-    </script>
-
+})(); // Fim da IIFE
+</script>
 </body>
 </html>
-
