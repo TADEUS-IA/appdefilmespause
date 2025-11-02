@@ -650,6 +650,127 @@ body { scrollbar-width: thin; scrollbar-color: var(--roxo) var(--bg-1); }
 }
 
 
+/* --- INÍCIO: NOVOS ESTILOS PARA MODAL DE PAGAMENTO (ADAPTADOS) --- */
+.payment-modal {
+    display: none; 
+    position: fixed;
+    z-index: 3000; /* Acima do modal .focus */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(31, 31, 62, 0.8);
+    backdrop-filter: blur(6px) saturate(110%);
+    -webkit-backdrop-filter: blur(6px) saturate(110%);
+    animation: fadeIn var(--t-med);
+    padding: var(--sp-m);
+}
+.payment-modal__content {
+    background-color: var(--bg-1);
+    border: 1px solid var(--roxo-2);
+    margin: 15% auto;
+    padding: var(--sp-xl);
+    border-radius: var(--r-large);
+    width: 90%;
+    max-width: 450px;
+    box-shadow: var(--shadow-strong);
+    position: relative;
+    text-align: center;
+    color: var(--ink);
+    animation: scaleUp var(--t-slow);
+}
+.payment-modal__content h2 {
+    color: var(--verde);
+    margin-bottom: var(--sp-m);
+    font-size: 1.5rem;
+}
+.payment-modal__content p {
+    margin: var(--sp-s) 0;
+    color: var(--ink-2);
+    font-size: 1rem;
+}
+.payment-modal__input {
+    width: 100%;
+    padding: var(--sp-m);
+    border: 1px solid var(--roxo-2);
+    border-radius: var(--r-small);
+    background: rgba(0,0,0,0.3);
+    color: var(--ink);
+    font-size: 1rem;
+    margin-bottom: var(--sp-m);
+}
+.payment-modal__input:focus {
+    outline: none;
+    border-color: var(--verde);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+.payment-modal__input::placeholder {
+    color: var(--ink-2);
+    opacity: 0.7;
+}
+.payment-modal__textarea {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid var(--roxo-2);
+    color: var(--ink);
+    padding: var(--sp-s);
+    border-radius: var(--r-small);
+    resize: none;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+.payment-modal__copy-button {
+    width: 100%;
+    padding: var(--sp-s);
+    margin-top: var(--sp-xs);
+    background: var(--roxo-2);
+    color: var(--bg-0);
+    border: none;
+    border-radius: var(--r-small);
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color var(--t-fast);
+}
+.payment-modal__copy-button:hover {
+    background: var(--verde);
+}
+.payment-modal__separator {
+    border: none;
+    border-top: 1px solid var(--roxo-2);
+    margin: var(--sp-l) 0;
+}
+.payment-modal__close-button {
+    color: var(--ink-2);
+    position: absolute;
+    top: var(--sp-m);
+    right: var(--sp-m);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.payment-modal__close-button:hover {
+    color: var(--ink);
+}
+.payment-modal__success-image {
+    max-width: 120px;
+    margin: var(--sp-s) auto;
+    border-radius: 50%;
+    border: 2px solid var(--verde);
+}
+.payment-modal__button-group {
+    display: flex;
+    gap: var(--sp-m);
+    justify-content: center;
+    margin-top: var(--sp-m);
+}
+/* --- FIM: NOVOS ESTILOS PARA MODAL DE PAGAMENTO --- */
+
+
 @media (max-width: 992px) {
   :root {
     --header-h: 4rem;
@@ -764,6 +885,12 @@ body { scrollbar-width: thin; scrollbar-color: var(--roxo) var(--bg-1); }
     width: 32px; 
     height: 32px; 
   }
+  
+  /* Adaptação do novo modal para mobile */
+  .payment-modal__content {
+    margin: 20% auto;
+    padding: var(--sp-l);
+  }
 }
 </style>
 
@@ -867,37 +994,42 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <section class="section" aria-labelledby="sectionTitleTrending">
       <h3 class="section__title" id="sectionTitleTrending">LanÇamentos</h3>
       <div class="cards" id="cardsGrid" role="list">
+
         <article class="card" role="listitem" tabindex="0"
           data-title="A Vida de Chuck"
           data-desc="Um drama emocionante baseado em Stephen King. Três atos que revelam o extraordinário no ordinário, com fotografia sensível e atuações de tirar o fôlego."
-          data-link="https://tadeus-ia.github.io/PAUSE/">
+          data-product-name="A VIDA DE CHUCK"
+          data-pix-value="1.95"
+          data-pix-key="00020126580014br.gov.bcb.pix013657bdba80-aa66-485d-a6f4-5fbc7a4a8a4552040000530398654041.955802BR5925RODRIGO DOS SANTOS FERREI6013Florianopolis6211050726f7879630457AE">
           <img class="card__img" loading="lazy" src="chuck.jpg" alt="Capa de A Vida de Chuck" />
           <span class="card__label">Drama</span>
         </article>
+
         <article class="card" role="listitem" tabindex="0"
-          data-title="TÍtulo"
-          data-desc="Descrição"
+          data-title="TÍtulo 2"
+          data-desc="Descrição 2"
           data-link="httpsG://exemplo.com/assistir/piratas">
           <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de Piratas do Caribe" />
           <span class="card__label">Aventura</span>
         </article>
+        
         <article class="card" role="listitem" tabindex="0"
-          data-title="TÍtulo"
-          data-desc="Descrição"
+          data-title="TÍtulo 3"
+          data-desc="Descrição 3"
           data-link="https://exemplo.com/assistir/interestelar">
           <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de Interestelar" />
           <span class="card__label">Ficção científica</span>
         </article>
         <article class="card" role="listitem" tabindex="0"
-          data-title="TÍtulo"
-          data-desc="Descrição"
+          data-title="TÍtulo 4"
+          data-desc="Descrição 4"
           data-link="https://exemplo.com/assistir/johnwick">
           <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de John Wick" />
           <span class="card__label">Ação</span>
         </article>
         <article class="card" role="listitem" tabindex="0"
-          data-title="TÍtulo"
-          data-desc="Descrição"
+          data-title="TÍtulo 5"
+          data-desc="Descrição 5"
           data-link="https://exemplo.com/assistir/relogio">
           <img class="card__img" loading="lazy" src="indisponivel.jpg" alt="Capa de O Conto do Relógio" />
           <span class="card__label">Fantasia</span>
@@ -908,13 +1040,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <section class="section" aria-labelledby="sectionTitleColetaneas">
       <h3 class="section__title" id="sectionTitleColetaneas">CoLetÂneas</h3>
       <div class="cards" id="cardsGridColetaneas" role="list">
+
         <article class="card" role="listitem" tabindex="0"
           data-title="Piratas do Caribe"
           data-desc="Espadas, rum e aventura. A saga que redefiniu a pirataria no cinema moderno com humor e trilha inesquecível."
-          data-link="https://tadeus-ia.github.io/PAUSE/">
+          data-product-name="Coletânea Piratas"
+          data-pix-value="4.95"
+          data-pix-key="00020126890014br.gov.bcb.pix013657bdba80-aa66-485d-a6f4-5fbc7a4a8a450227Acesso a tudo por 35 dias! 52040000530398654044.955802BR5925RODRIGO DOS SANTOS FERREI6013Florianopolis6211050726f78796304D345">
           <img class="card__img" loading="lazy" src="piratas.jpg" alt="piratas do caribe" />
           <span class="card__label">AvenTura</span>
         </article>
+        
         <article class="card" role="listitem" tabindex="0"
           data-title="TÍtulo"
           data-desc="Descrição"
@@ -955,15 +1091,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h4 class="focus__title" id="focusTitle">Carregando...</h4>
         <div class="focus__desc" id="focusDesc" tabindex="0">Carregando descrição...</div>
         <div class="focus__cta">
-          <a class="btn btn--primary" id="watchBtn" href="#" target="_blank" rel="noopener noreferrer">Assistir Agora</a>
+          <a class="btn btn--primary" id="watchBtn" rel="noopener noreferrer">Assistir Agora</a>
         </div>
       </div>
     </div>
   </div>
 
+  <div id="paymentDecisionModal" class="payment-modal">
+      <div class="payment-modal__content">
+          <button class="payment-modal__close-button" data-close-modal>&times;</button>
+          <h2 id="paymentDecisionTitle">Assistir a...</h2>
+          <div class="payment-modal__button-group">
+            <button class="btn btn--ghost" id="paymentDecisionNo" data-close-modal>Não</button>
+            <button class="btn btn--primary" id="paymentDecisionYes">Sim</button>
+          </div>
+      </div>
+  </div>
+
+  <div id="paymentPhoneModal" class="payment-modal">
+      <div class="payment-modal__content">
+          <button class="payment-modal__close-button" data-close-modal>&times;</button>
+          <h2>Coloque seu telefone</h2>
+          <p>Você receberá o link de acesso no número informado.</p>
+          <input type="tel" id="paymentPhoneInput" class="payment-modal__input" placeholder="Seu WhatsApp (Ex: 11999998888)" required pattern="[0-9]{10,11}">
+          <button class="btn btn--primary" id="paymentSubmitPhone">Receber Link</button>
+      </div>
+  </div>
+
+    <div id="pixModal" class="payment-modal">
+      <div class="payment-modal__content">
+          <button class="payment-modal__close-button" data-close-modal>&times;</button>
+          <h2>Falta pouco! Pague seu PIX de R$<span id="pixValue"></span></h2>
+          
+          <p style="margin-top: 20px;">1. Use o PIX Copia e Cola:</p>
+          <textarea id="pixKey" class="payment-modal__textarea" rows="3" readonly></textarea>
+          <button id="copyPixKey" class="payment-modal__copy-button">Copiar Chave</button>
+          
+          <hr class="payment-modal__separator">
+          <p>2. Após pagar, clique aqui para confirmar:</p>
+          
+          <button id="confirmPaymentButton" class="btn btn--primary" style="width: 100%; background-color: #238636;">
+            JÁ PAGUEI!
+          </button>
+      </div>
+  </div>
+
+    <div id="successModal" class="payment-modal">
+      <div class="payment-modal__content text-center">
+          <button class="payment-modal__close-button" data-close-modal>&times;</button>
+          <h2>Obrigado!</h2>
+          <img src="logo.png" alt="Sucesso" class="payment-modal__success-image">
+          <p>Aguarde Confirmação Por Favor. O acesso será enviado ao seu telefone.</p>
+      </div>
+  </div>
+  
   <footer class="footer" role="contentinfo">
     <div class="footer__inner">
-      <img src="logo-aprovados.png" alt="Logo Aprovados" class="footer__logo">
+      <img src="favicon (1).png" alt="Logo Aprovados" class="footer__logo">
       <p>Feito pela empresa <a href="https://wa.me/message/DQJBWVDS3BJ4N1" class="footer-link footer-link--pause" target="_blank" rel="noopener noreferrer">aprovados</a></p>
     </div>
   </footer>
@@ -986,6 +1170,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const $ = (selector, context = document) => context.querySelector(selector);
   const $$ = (selector, context = document) => Array.from(context.querySelectorAll(selector));
 
+  // --- INÍCIO: CONFIGURAÇÃO DO NOVO FLUXO DE PAGAMENTO ---
+  
+  // URLs dos Webhooks (extraídas do código de referência)
+  const N8N_WEBHOOK_URL = 'https://automacoe-n8n.bitxsu.easypanel.host/webhook-test/filmes';
+  const GSHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzZYQDN10XqpsMUHueOXxgZe4dO37XAj-vpWUBz1IJQnbE8tR3MoJjlSVuw5ZsiodrL/exec';
+  // Número para onde a notificação "JÁ PAGUEI" será enviada
+  const adminWhatsAppNumber = '5511942439819'; 
+  
+  // Variáveis para armazenar os dados do fluxo
+  let currentPaymentFlowData = {};
+
+  // Seletores dos novos modais
+  const paymentModals = {
+      decision: $('#paymentDecisionModal'),
+      phone: $('#paymentPhoneModal'),
+      pix: $('#pixModal'),
+      success: $('#successModal')
+  };
+
+  const paymentElements = {
+      decisionTitle: $('#paymentDecisionTitle'),
+      decisionYes: $('#paymentDecisionYes'),
+      decisionNo: $('#paymentDecisionNo'),
+      phoneInput: $('#paymentPhoneInput'),
+      submitPhone: $('#paymentSubmitPhone'),
+      pixValue: $('#pixValue'),
+      pixKey: $('#pixKey'),
+      copyPixKey: $('#copyPixKey'),
+      confirmPayment: $('#confirmPaymentButton'),
+      closeButtons: $$('[data-close-modal]')
+  };
+  // --- FIM: CONFIGURAÇÃO DO NOVO FLUXO DE PAGAMENTO ---
+
+
   const DOMElements = {
     body: document.body,
     docElement: document.documentElement,
@@ -998,7 +1216,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     focusImg: $('#focusImg'),
     focusTitle: $('#focusTitle'),
     focusDesc: $('#focusDesc'),
-    watchBtn: $('#watchBtn'),
+    watchBtn: $('#watchBtn'), // <- Botão "Assistir Agora"
     focusCloseBtn: $('#focusCloseBtn'),
     shareBtn: $('#shareBtn')
   };
@@ -1030,6 +1248,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     DOMElements.focusPanel.style.height = `${panelH}px`;
   }
 
+  /**
+   * MODIFICADO: Esta função agora "arma" o botão #watchBtn
+   * com os dados do card (seja link ou PIX).
+   */
   function openFocus(card) {
     if (!card || !DOMElements.focusLayer || DOMElements.focusLayer.classList.contains('is-open')) return;
     const requiredModalElements = [
@@ -1042,17 +1264,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
     currentCard = card;
     lastTrigger = document.activeElement || DOMElements.body;
+    
+    // Coleta todos os dados do card
     const title = card.dataset.title || 'Título Indisponível';
     const desc = card.dataset.desc || 'Descrição indisponível.';
     const link = card.dataset.link || '#';
     const imgElement = $('.card__img', card);
     const imgSrc = imgElement?.src || '';
+    
+    // Coleta dados de PIX (se existirem)
+    const pixKey = card.dataset.pixKey;
+    const pixValue = card.dataset.pixValue;
+    const productName = card.dataset.productName || title; // Usa 'productName' ou 'title'
+
+    // Preenche o modal de descrição
     DOMElements.focusTitle.textContent = title;
     DOMElements.focusDesc.textContent = desc;
     DOMElements.focusDesc.scrollTop = 0;
     DOMElements.focusImg.src = imgSrc;
     DOMElements.focusImg.alt = `Capa promocional de ${title}`;
-    DOMElements.watchBtn.href = link;
+    
+    // *** LÓGICA DE DECISÃO (PIX ou LINK) ***
+    if (pixKey && pixValue) {
+        // 1. É um card de PIX
+        // "Arma" o botão 'Assistir Agora' para iniciar o fluxo PIX
+        DOMElements.watchBtn.href = '#'; // Define um href para ser "clicável"
+        DOMElements.watchBtn.removeAttribute('target'); // Remove target=_blank
+        DOMElements.watchBtn.dataset.flow = 'pix'; // Identificador para o listener
+        // Armazena os dados do PIX no próprio botão
+        DOMElements.watchBtn.dataset.pixKey = pixKey;
+        DOMElements.watchBtn.dataset.pixValue = pixValue;
+        DOMElements.watchBtn.dataset.productName = productName;
+    } else {
+        // 2. É um card de Link normal
+        // Configura o botão como um link padrão
+        DOMElements.watchBtn.href = link;
+        DOMElements.watchBtn.target = '_blank';
+        DOMElements.watchBtn.dataset.flow = 'info'; // Identificador para o listener
+        // Limpa dados de PIX antigos (segurança)
+        DOMElements.watchBtn.removeAttribute('data-pix-key');
+        DOMElements.watchBtn.removeAttribute('data-pix-value');
+        DOMElements.watchBtn.removeAttribute('data-product-name');
+    }
+
+    // Abre o modal de descrição
     computeFocusSize();
     DOMElements.focusLayer.style.display = 'grid';
     DOMElements.focusLayer.offsetHeight;
@@ -1066,6 +1321,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }, 50);
   }
 
+  // Função Original (sem modificação)
   function closeFocus() {
     if (!DOMElements.focusLayer || !DOMElements.focusLayer.classList.contains('is-open')) return;
     DOMElements.focusLayer.classList.remove('is-open');
@@ -1090,6 +1346,81 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     currentCard = null;
   }
 
+  // --- INÍCIO: NOVAS FUNÇÕES DO FLUXO DE PAGAMENTO ---
+
+  /**
+   * Abre um modal de pagamento e fecha todos os outros.
+   * @param {HTMLElement} modal - O elemento do modal a ser aberto.
+   */
+  function openPaymentModal(modal) {
+      if (!modal) return;
+      // Fecha todos os modais abertos
+      Object.values(paymentModals).forEach(m => m.style.display = 'none');
+      // Abre o modal desejado
+      modal.style.display = 'block';
+      DOMElements.docElement.style.overflow = 'hidden';
+      DOMElements.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Fecha todos os modais de pagamento.
+   */
+  function closePaymentFlow() {
+      Object.values(paymentModals).forEach(m => m.style.display = 'none');
+      // Só devolve o scroll se o modal de info não estiver abrindo
+      if (!DOMElements.focusLayer.classList.contains('is-open')) {
+        DOMElements.docElement.style.overflow = '';
+        DOMElements.body.style.overflow = '';
+      }
+      currentPaymentFlowData = {}; // Reseta os dados do fluxo
+  }
+  
+  // (A função startChuckPixFlow foi removida pois sua lógica
+  // foi movida para o listener do botão #watchBtn)
+
+  /**
+   * Função para enviar dados aos endpoints (n8n, GSheets).
+   * Extraída do código de referência e adaptada.
+   * @param {object} data - Os dados do formulário e pagamento.
+   */
+  async function sendDataToEndpoints(data) {
+      const payload = JSON.stringify(data);
+
+      // --- 1. Envio para n8n (JSON) ---
+      const n8nPromise = fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+      })
+      .then(response => response.json().catch(() => ({})))
+      .then(result => console.log('Integração n8n OK:', result))
+      .catch(error => console.error('Erro na integração n8n:', error));
+
+      // --- 2. Envio para Google Sheets (JSON com 'no-cors') ---
+      const gsheetsPromise = fetch(GSHEETS_WEBHOOK_URL, {
+          method: 'POST',
+          mode: 'no-cors', // Essencial para evitar erros de CORS com Google Scripts
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
+      })
+      .then(() => console.log('Integração GSheets: Dados enviados (no-cors).'))
+      .catch(error => console.error('Erro de rede na integração GSheets:', error));
+
+      try {
+          await Promise.allSettled([n8nPromise, gsheetsPromise]);
+          console.log('Integrações (n8n & GSheets) finalizadas.');
+      } catch (e) {
+          console.error("Erro ao executar promessas de integração:", e);
+      }
+  }
+
+  // --- FIM: NOVAS FUNÇÕES DO FLUXO DE PAGAMENTO ---
+
+
+  /**
+   * MODIFICADO: A barra de busca agora abre o 'openFocus'
+   * para qualquer card, e o 'openFocus' decide o que fazer.
+   */
   function filterAndFocusCards(term) {
     let firstMatch = null;
     const lowerTerm = term.trim().toLowerCase();
@@ -1107,7 +1438,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     });
     if (firstMatch) {
       firstMatch.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      setTimeout(() => openFocus(firstMatch), 400);
+      // MODIFICADO: Removemos a checagem. Sempre abre o modal de descrição.
+      setTimeout(() => {
+          openFocus(firstMatch);
+      }, 400);
     }
     else if (DOMElements.focusLayer?.classList.contains('is-open')) {
       closeFocus();
@@ -1115,12 +1449,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 
   function setupEventListeners() {
+    // Listeners do modal de foco original
     DOMElements.focusBackdrop?.addEventListener('click', closeFocus);
     DOMElements.focusCloseBtn?.addEventListener('click', closeFocus);
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && DOMElements.focusLayer?.classList.contains('is-open')) {
-        e.preventDefault();
-        closeFocus();
+      if (e.key === 'Escape') {
+        if (DOMElements.focusLayer?.classList.contains('is-open')) {
+            e.preventDefault();
+            closeFocus();
+        } else if (Object.values(paymentModals).some(m => m.style.display === 'block')) {
+            e.preventDefault();
+            closePaymentFlow();
+        }
       }
     });
     
@@ -1138,18 +1478,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       });
     }
 
+    /**
+     * MODIFICADO: Listener do card agora *sempre* abre o
+     * modal de descrição (openFocus).
+     */
     DOMElements.allCards.forEach(card => {
+      // Evento de Clique
       card.addEventListener('click', (e) => {
         e.preventDefault();
-        openFocus(card);
+        openFocus(card); // <- Sempre abre o modal de descrição
       });
+
+      // Evento de Teclado (Enter/Espaço)
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openFocus(card);
+          openFocus(card); // <- Sempre abre o modal de descrição
         }
       });
     });
+    // --- Fim da Modificação ---
+
+
     if (DOMElements.searchInput) {
       DOMElements.searchInput.addEventListener('input', () => {
         clearTimeout(searchTimeoutId);
@@ -1170,6 +1520,138 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       clearTimeout(resizeTimeoutId);
       resizeTimeoutId = setTimeout(computeFocusSize, RESIZE_DEBOUNCE);
     });
+
+
+    // --- INÍCIO: NOVOS EVENT LISTENERS PARA O FLUXO DE PAGAMENTO ---
+
+    /**
+     * NOVO LISTENER: O clique no botão "Assistir Agora"
+     * agora decide se abre um link ou o fluxo PIX.
+     */
+    DOMElements.watchBtn.addEventListener('click', (e) => {
+        const button = e.currentTarget;
+        
+        // Se for 'info', é um link normal. Não faz nada e deixa o navegador seguir o 'href'.
+        if (button.dataset.flow === 'info') {
+            return;
+        }
+
+        // Se for 'pix', previne o link de '#' e inicia o fluxo.
+        if (button.dataset.flow === 'pix') {
+            e.preventDefault(); // Impede o navegador de seguir o link '#'
+            
+            // 1. Fecha o modal de descrição
+            closeFocus();
+
+            // 2. Coleta os dados do PIX (que armazenaos no botão)
+            const productName = button.dataset.productName;
+            const pixValue = button.dataset.pixValue;
+            const pixKey = button.dataset.pixKey;
+
+            // 3. Armazena globalmente para os próximos modais
+            currentPaymentFlowData = {
+                productName: productName,
+                value: parseFloat(pixValue),
+                pixKey: pixKey,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 4. Inicia o fluxo PIX (Modal 1: Decisão "Sim/Não")
+            // Atraso leve para garantir que a animação de fechar do 'closeFocus'
+            // não entre em conflito com a de abrir do 'openPaymentModal'.
+            setTimeout(() => {
+              paymentElements.decisionTitle.textContent = `Assistir a '${productName}'?`;
+              openPaymentModal(paymentModals.decision);
+            }, 50); // 50ms é suficiente
+        }
+    });
+
+
+    // Botões de fechar dos novos modais
+    paymentElements.closeButtons.forEach(button => {
+        button.addEventListener('click', closePaymentFlow);
+    });
+
+    // Modal 1 (Decisão): Botão "Não"
+    paymentElements.decisionNo.addEventListener('click', closePaymentFlow);
+
+    // Modal 1 (Decisão): Botão "Sim"
+    paymentElements.decisionYes.addEventListener('click', () => {
+        openPaymentModal(paymentModals.phone);
+        paymentElements.phoneInput.value = ''; // Limpa o campo
+        paymentElements.phoneInput.focus();
+    });
+
+    // Modal 2 (Telefone): Botão "Enviar"
+    paymentElements.submitPhone.addEventListener('click', () => {
+        const phone = paymentElements.phoneInput.value;
+        // Validação simples
+        if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
+            alert('Por favor, insira um telefone válido (apenas números, com DDD).');
+            paymentElements.phoneInput.focus();
+            return;
+        }
+
+        // Armazena o telefone
+        currentPaymentFlowData.phone = phone;
+        // Adiciona dados "dummy" para compatibilidade com o webhook que espera nome/email
+        currentPaymentFlowData.name = `Cliente ${currentPaymentFlowData.productName}`;
+        currentPaymentFlowData.email = "na@coletado.com";
+
+        // Preenche o modal do PIX
+        paymentElements.pixValue.textContent = currentPaymentFlowData.value.toFixed(2).replace('.', ',');
+        paymentElements.pixKey.value = currentPaymentFlowData.pixKey;
+
+        // Avança para o modal do PIX
+        openPaymentModal(paymentModals.pix);
+    });
+
+    // Modal 3 (PIX): Botão "Copiar Chave" (Extraído do Referência)
+    paymentElements.copyPixKey.addEventListener('click', () => {
+        const pixKeyInput = paymentElements.pixKey;
+        pixKeyInput.select();
+        pixKeyInput.setSelectionRange(0, 99999); 
+        try {
+            navigator.clipboard.writeText(pixKeyInput.value).then(() => {
+                paymentElements.copyPixKey.textContent = 'Copiado!';
+            }).catch(() => {
+                document.execCommand('copy');
+                paymentElements.copyPixKey.textContent = 'Copiado!';
+            });
+        } catch (err) {
+            document.execCommand('copy');
+            paymentElements.copyPixKey.textContent = 'Copiado!';
+        }
+        setTimeout(() => {
+            paymentElements.copyPixKey.textContent = 'Copiar Chave';
+        }, 2000); 
+    });
+
+    // Modal 3 (PIX): Botão "JÁ PAGUEI"
+    paymentElements.confirmPayment.addEventListener('click', () => {
+        // 1. Envia os dados para os Webhooks (n8n, GSheets)
+        if (currentPaymentFlowData.phone) {
+            console.log("Enviando dados para endpoints:", currentPaymentFlowData);
+            sendDataToEndpoints(currentPaymentFlowData);
+        } else {
+            console.error("Erro: Telefone não encontrado para enviar.");
+        }
+
+        // 2. Prepara e abre a notificação do WhatsApp (lógica do referência)
+        const message = `🚀 NOVO PAGAMENTO INICIADO (Site Catálogo) 🚀\n\n` +
+                        `Filme: ${currentPaymentFlowData.productName}\n` +
+                        `Valor: R$ ${currentPaymentFlowData.value.toFixed(2)}\n` +
+                        `Telefone: ${currentPaymentFlowData.phone}\n\n` +
+                        `Aguardando confirmação manual do pagamento...`;
+        
+        const whatsappLink = `https://wa.me/${adminWhatsAppNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappLink, '_blank');
+
+        // 3. Abre o modal de sucesso
+        openPaymentModal(paymentModals.success);
+    });
+
+    // --- FIM: NOVOS EVENT LISTENERS ---
   }
 
   function initialize() {
